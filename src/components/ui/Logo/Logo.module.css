@@ -1,0 +1,39 @@
+.logo {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  transition: all var(--transition-base);
+}
+
+.logo span {
+  color: var(--brand-gold);
+}
+
+/* Sizes */
+.sm {
+  font-size: 1.25rem;
+}
+
+.md {
+  font-size: 1.8rem;
+}
+
+.lg {
+  font-size: 2.5rem;
+}
+
+/* Themes */
+.dark {
+  color: var(--heading-color);
+}
+
+.light {
+  color: var(--heading-color);
+}
+
+/* Hover effects for logos in links */
+.logo:hover {
+  opacity: 0.9;
+}

@@ -1,0 +1,74 @@
+.container {
+  background: var(--surface-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.header h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0;
+}
+
+.zap {
+  color: #f59e0b;
+}
+
+.askBtn {
+  width: 100%;
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.askBtn:hover {
+  background: #0f172a;
+}
+
+.advice {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.adviceText {
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #f59e0b;
+}
+
+.resetBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+}
+
+.loader {
+  font-size: 0.8rem;
+  color: #3b82f6;
+  font-style: italic;
+  text-align: center;
+}

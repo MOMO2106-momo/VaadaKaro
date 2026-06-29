@@ -1,0 +1,100 @@
+.chartContainer {
+  width: 100%;
+  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--heading-color);
+}
+
+/* Bar Chart */
+.barAxis {
+  display: flex;
+  align-items: flex-end;
+  height: 150px;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--card-border);
+}
+
+.barGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.bar {
+  width: 100%;
+  background: #3b82f6;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+  min-height: 2px;
+}
+
+.barLabel {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Pie Distribution (Using flex segments) */
+.pieTrack {
+  display: flex;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: var(--surface-alt);
+}
+
+.pieSegment {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Progress XP bar */
+.xpBarContainer {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.xpBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ca8a04, #facc15);
+  transition: width 1s ease;
+}

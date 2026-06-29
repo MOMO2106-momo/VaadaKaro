@@ -1,0 +1,127 @@
+.container {
+  padding: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #0f172a, #000);
+  color: white;
+}
+
+.header {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  background: #f59e0b;
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.icon {
+  margin-bottom: 1.5rem;
+}
+
+.icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-top: 0.5rem;
+}
+
+.impactSection {
+  margin-top: 4rem;
+}
+
+.impactCard {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3rem;
+  border-radius: 2rem;
+}
+
+.impactCard h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.benefitGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+}
+
+.benefit strong {
+  display: block;
+  font-size: 1.25rem;
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.benefit p {
+  line-height: 1.6;
+  opacity: 0.7;
+}
+
+@media (max-width: 1024px) {
+  .metricsGrid { grid-template-columns: repeat(2, 1fr); }
+  .benefitGrid { grid-template-columns: 1fr; gap: 2rem; }
+}

@@ -1,0 +1,382 @@
+/* ===== DASHBOARD — MATCHES DESIGN MOCKUP ===== */
+
+/* Full-height layout: dark navy sidebar + main content */
+.container {
+  display: flex;
+  min-height: calc(100vh - 60px);
+  background: var(--dashboard-bg);
+}
+
+/* ===== DARK NAVY SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #12264a;
+  color: white;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: sticky;
+  top: 60px;
+  height: max-content;
+}
+
+.sidebarSection {
+  padding: 1.5rem 1.5rem 0.75rem;
+}
+
+.sidebarSection h3 {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.sidebarItem:hover {
+  color: white;
+}
+
+.sidebarDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 1.5rem;
+}
+
+/* My Submissions badge */
+.submissionsBadge {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  margin-left: auto;
+}
+
+/* Quick Stats mini cards inside sidebar */
+.sidebarStatCard {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.sidebarStatIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8865c;
+}
+
+.sidebarStatLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 2px;
+}
+
+.sidebarStatValue {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+/* ===== MAIN CONTENT AREA ===== */
+.mainContent {
+  flex: 1;
+  padding: 2rem 2.5rem;
+}
+
+.mainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mainTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+/* ===== COMPLAINT CARDS GRID ===== */
+.complaintsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+/* Individual complaint card — matches mockup exactly */
+.complaintCard {
+  background: var(--card-bg);
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+}
+
+.complaintCard:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.cardTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.cardDate {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Status pills */
+.statusPill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.statusIN_PROGRESS,
+.statusUNDER_REVIEW {
+  background: var(--alert-warn-bg);
+  color: #c05c1a;
+}
+
+.statusSUBMITTED {
+  background: var(--alert-info-bg);
+  color: #4a5fa8;
+}
+
+.statusRESOLVED {
+  background: var(--alert-success-bg);
+  color: #1e7e49;
+}
+
+.statusREJECTED {
+  background: var(--alert-error-bg);
+  color: #c0392b;
+}
+
+.cardBody {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.cardText {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin-bottom: 0.25rem;
+}
+
+.cardSubtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+/* Skeleton description lines */
+.skeletonLine {
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.skeletonLineSm {
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 4px;
+  width: 75%;
+}
+
+/* Map thumbnail on card */
+.cardMapThumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  background: #e8f4e8;
+  border: 1px solid #d0e8d0;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cardMapThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mapPin {
+  position: absolute;
+  color: #e05555;
+  font-size: 1.25rem;
+}
+
+/* Empty state */
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem;
+  color: var(--text-muted);
+}
+
+.emptyState a {
+  color: #12264a;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.aiSection {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.aiSection .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+/* Search bar */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sectionHeader h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--card-border);
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
+  background: var(--card-bg);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.searchBar input {
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  width: 180px;
+  background: transparent;
+}
+
+/* Old classes — keep to avoid 404 CSS errors if referenced anywhere */
+.header,
+.title,
+.subtitle,
+.newBtn,
+.statsGrid,
+.statCard,
+.statIcon,
+.statLabel,
+.statValue,
+.recentSection,
+.dashboardGrid,
+.mainCol,
+.sideCol,
+.promiseSection,
+.promiseList,
+.activityFeed,
+.activityList,
+.activityItem,
+.activityIcon,
+.activityText,
+.activityDate,
+.activityTarget,
+.headerActions,
+.promiseBtn,
+.viewAll,
+.emptyState p {
+  color: inherit;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  .complaintsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .complaintsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mainContent {
+    padding: 1rem;
+  }
+}

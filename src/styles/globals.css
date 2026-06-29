@@ -1,0 +1,469 @@
+@import "tailwindcss";
+
+:root {
+  /* Official Civic Palette - Product-Grade Focus */
+  --brand-navy: #123B69;
+  --brand-navy-light: #3B82F6;
+  --brand-saffron: #F4A261;
+  --brand-saffron-dark: #E76F51;
+  --brand-gold: #F59E0B;
+
+  --brand-white: #FFFFFF;
+  --brand-gray-bg: #F8FAFC;
+  --brand-gray-border: #E2E8F0;
+
+  --brand-text: #0F172A;
+  --brand-text-muted: #334155;
+  --brand-text-light: #64748B;
+
+  /* Modern Gov UI Palette */
+  --primary-teal: #3D9B7C;
+  --primary-teal-dark: #2F7A61;
+  --mint-green: #E8F5E9;
+  --mint-green-text: #2E7D32;
+  --bg-off-white: #F8F9FA;
+  --text-charcoal: #333333;
+  --text-gray: #666666;
+  --border-color: #E0E0E0;
+  --red: #E53935;
+
+  /* ===== Dark-Mode-Aware Semantic Tokens ===== */
+  --card-bg: #FFFFFF;
+  --card-bg-hover: #F8FAFC;
+  --card-border: rgba(0, 0, 0, 0.05);
+  --surface-alt: #F1F5F9;
+  --surface-muted: #F8FAFC;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #8A9BB0;
+  --heading-color: #12264A;
+  --dashboard-bg: #F4F6F9;
+  --input-bg: #FFFFFF;
+  --alert-info-bg: #EFF6FF;
+  --alert-warn-bg: #FFF7ED;
+  --alert-error-bg: #FEF2F2;
+  --alert-success-bg: #F0FDF4;
+  --status-pill-bg: rgba(0, 0, 0, 0.04);
+
+  /* Semantic Colors */
+  --primary: var(--brand-navy);
+  --secondary: var(--brand-saffron);
+  --accent: var(--brand-gold);
+
+  --background: var(--brand-gray-bg);
+  --foreground: var(--brand-text);
+
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+
+  --border: var(--brand-gray-border);
+  --input: #FFFFFF;
+  --ring: var(--brand-navy);
+
+  /* Modern Box Shadows - Subtle lift */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-hover: 0 8px 16px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+
+  /* Typography */
+  --font-inter: 'Inter', -apple-system, system-ui, sans-serif;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Spacing */
+  --container-width: 1200px;
+  --header-height: 100px;
+}
+
+.dark {
+  /* Premium Deep Navy Dark Mode — replaces flat black */
+  --background: #08131F;
+  --foreground: #E2E8F0;
+
+  /* Core brand colors adapted for dark */
+  --brand-navy: #38BDF8;
+  --brand-navy-light: #5EEAD4;
+  --brand-white: #0D1B2A;
+  --brand-gray-bg: #0D1B2A;
+  --brand-gray-border: rgba(255, 255, 255, 0.08);
+
+  --brand-text: #F1F5F9;
+  --brand-text-muted: #94A3B8;
+  --brand-text-light: #64748B;
+
+  /* Legacy vars for compatibility */
+  --bg-off-white: #0D1B2A;
+  --text-charcoal: #F1F5F9;
+  --text-gray: #64748B;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --mint-green: rgba(22, 163, 74, 0.15);
+  --mint-green-text: #6EE7B7;
+  --input: #111827;
+
+  /* ===== Dark-Mode Semantic Token Overrides ===== */
+  --card-bg: #1E293B;
+  --card-bg-hover: #334155;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --surface-alt: #0F172A;
+  --surface-muted: #1E293B;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --heading-color: #E2E8F0;
+  --dashboard-bg: #0D1B2A;
+  --input-bg: #111827;
+  --alert-info-bg: rgba(59, 130, 246, 0.12);
+  --alert-warn-bg: rgba(245, 158, 11, 0.12);
+  --alert-error-bg: rgba(239, 68, 68, 0.12);
+  --alert-success-bg: rgba(34, 197, 94, 0.12);
+  --status-pill-bg: rgba(255, 255, 255, 0.06);
+
+  /* Shadows for dark mode depth */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body,
+[data-nextjs-scroll-focus-boundary] {
+  min-height: 100%;
+  height: auto;
+  max-width: 100vw;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  touch-action: auto;
+}
+
+html,
+body {
+  font-family: var(--font-inter);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-smoothing: grayscale;
+  font-size: 16px;
+}
+
+body {
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--heading-color);
+}
+
+/* Allow text selection in input/textarea elements */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* Layout */
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Card Base */
+.card-base {
+  background: var(--brand-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--brand-gray-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border 0.2s ease;
+}
+
+.card-base:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--brand-white);
+  background: var(--brand-saffron);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(244, 162, 97, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  background: var(--brand-saffron-dark);
+  box-shadow: 0 4px 12px rgba(244, 162, 97, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--brand-navy);
+  background: transparent;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(18, 59, 105, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  transform: translateY(-1px);
+  background: rgba(18, 59, 105, 0.04);
+  border-color: rgba(18, 59, 105, 0.35);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* Skeleton Loading */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg,
+      var(--surface-alt) 25%,
+      var(--surface-muted) 50%,
+      var(--surface-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  min-height: 1em;
+  width: 100%;
+}
+
+.skeleton-text {
+  height: 0.85em;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-title {
+  height: 1.4em;
+  width: 60%;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-card {
+  height: 10rem;
+  border-radius: var(--radius-lg);
+}
+
+/* Official Card (legacy compatibility) */
+.official-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.official-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Section Padding */
+.section-padding {
+  padding: 3rem 0;
+}
+
+/* Gov Indicator */
+.gov-indicator {
+  background: #E2E8F0;
+  padding: 4px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 100px;
+  color: var(--brand-navy);
+}
+
+/* Button Hover Utility */
+.button-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card Style (legacy compatibility) */
+.card-style {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-style:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* Touch target minimum size */
+.touch-target {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* GPU-accelerated animation hints */
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* Mobile bottom nav spacing */
+@media (max-width: 768px) {
+  .main-with-mobile-nav {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 2.5rem 0;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(34, 197, 94, 0.28);
+  color: var(--foreground);
+}
+
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+[tabindex] {
+  min-height: 48px;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable="true"],
+select {
+  user-select: text;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+table {
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

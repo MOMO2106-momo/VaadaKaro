@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+.heroWidget {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.heroHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.heroMain {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rankBadge {
+  background: #123B69;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.heroTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--heading-color);
+  line-height: 1.2;
+}
+
+.heroSubtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trophyIcon {
+  color: #F4A261;
+}
+
+.pointsDisplay {
+  text-align: center;
+  padding: 1rem;
+  background: var(--surface-muted);
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+}
+
+.pointsValue {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--heading-color);
+  line-height: 1;
+}
+
+.pointsLabel {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--heading-color);
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #123B69 0%, #3b82f6 100%);
+  border-radius: 99px;
+}
+
+.progressFooter {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+/* Badge Showcase */
+.badgeShowcase {
+  margin-top: 2rem;
+}
+
+.widgetTitle {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--heading-color);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  letter-spacing: 0.03em;
+}
+
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.badgeCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.badgeCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-20deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.badgeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.badgeCard:not(.locked):hover {
+  box-shadow: 0 10px 15px -3px rgba(244, 162, 97, 0.2), 0 4px 6px -2px rgba(18, 59, 105, 0.1);
+}
+
+.badgeCard:not(.locked)::after {
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.6;
+  }
+
+  60% {
+    opacity: 0.6;
+  }
+
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.badgeCard.locked {
+  opacity: 0.55;
+  background: var(--surface-muted);
+  box-shadow: none;
+  cursor: default;
+}
+
+.badgeCard.locked:hover {
+  transform: none;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+.badgeIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.badgeInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.badgeName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badgePoints {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.earnedTag {
+  font-size: 0.65rem;
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 6px;
+  border-radius: 99px;
+  width: fit-content;
+  margin-top: 4px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.lockIcon {
+  color: #94a3b8;
+}

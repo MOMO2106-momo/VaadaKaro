@@ -1,0 +1,62 @@
+.skeletonContainer {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.headerSkeleton {
+  height: 100px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 3rem;
+  animation: pulse 1.5s infinite;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.statCard {
+  height: 120px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+}
+
+.insightSkeleton {
+  height: 200px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  animation: pulse 1.5s infinite;
+}
+
+.sectionSkeleton {
+  height: 400px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+.widgetSkeleton {
+  height: 300px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

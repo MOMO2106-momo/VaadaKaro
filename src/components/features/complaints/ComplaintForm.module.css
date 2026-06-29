@@ -1,0 +1,447 @@
+/* ======================================================
+   VaadaKaro – File Complaint Form
+   Matches the premium multi-step design mockup
+   ====================================================== */
+
+/* Page background with dot-grid pattern */
+.pageWrapper {
+  min-height: calc(100vh - 60px);
+  background: #eaecef;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.pageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #c5cdd8 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.3) 0%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.3) 0%, transparent 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pageWrapper::after {
+  content: '✦';
+  position: absolute;
+  bottom: 3rem;
+  right: 4rem;
+  font-size: 2rem;
+  color: #b0bcc8;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 720px;
+}
+
+/* Top banner inside the card */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.headerIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #12264a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.headerText h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #12264a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.headerText p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0.15rem 0 0;
+  font-weight: 500;
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  background: #12264a;
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.stepActive {
+  opacity: 1;
+}
+
+.stepDot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.stepActive .stepDot {
+  border-color: #f4a261;
+  background: rgba(244, 162, 97, 0.15);
+  color: #f4a261;
+}
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  max-width: 60px;
+}
+
+/* Main card */
+.card {
+  background: white;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.formBody {
+  padding: 2rem;
+}
+
+.formFooter {
+  padding: 1.25rem 2rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+/* Form layout */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  color: #0f172a;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #12264a;
+  box-shadow: 0 0 0 3px rgba(18, 38, 74, 0.08);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.formGroup .hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btnPrimary {
+  background: #12264a;
+  color: white;
+}
+
+.btnPrimary:hover {
+  background: #1a3a6b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(18, 38, 74, 0.2);
+}
+
+.btnSecondary {
+  background: white;
+  color: #12264a;
+  border: 1px solid #e2e8f0;
+}
+
+.btnSecondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Priority badge */
+.priorityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.priorityBadgeHigh {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.priorityBadgeMedium {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.priorityBadgeLow {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* Review step */
+.reviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.reviewItem {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.reviewItem label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.reviewItem p {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Messages */
+.warningMessage,
+.errorMessage,
+.successMessage {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(252, 165, 161, 0.6);
+  margin: 0 2.25rem 1rem;
+  border-radius: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 450;
+}
+
+.warningMessage {
+  background: #fffbeb;
+  color: #854d0e;
+  border-color: #fde68a;
+}
+
+.errorMessage {
+  background: var(--alert-error-bg);
+  color: #991b1b;
+  border: 1px solid rgba(252, 165, 161, 0.6);
+  margin: 0 2.25rem 1rem;
+  border-radius: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 450;
+}
+
+.successMessage {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #86efac;
+}
+
+/* AI analyze button */
+.aiAnalyzeBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #12264a;
+  color: white;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.aiAnalyzeBtn:hover {
+  background: #1a3a6b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(18, 38, 74, 0.2);
+}
+
+.aiAnalyzeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* AI Feedback card */
+.aiFeedback {
+  margin-top: 1.25rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.aiFeedbackHeader {
+  padding: 1rem 1.25rem;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aiFeedbackHeader h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #12264a;
+}
+
+.aiFeedbackBody {
+  padding: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.aiFeedbackBody strong {
+  color: #12264a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepper {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .formBody {
+    padding: 1.25rem 1.25rem 1.5rem;
+  }
+
+  .formFooter {
+    padding: 1rem 1.25rem 1.5rem;
+  }
+
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .warningMessage,
+  .errorMessage {
+    margin: 0 1.25rem 1rem;
+  }
+}
