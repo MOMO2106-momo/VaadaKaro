@@ -1,0 +1,444 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CITIZEN
+  OFFICER
+  LAWYER
+  ADMIN
+}
+
+enum ComplaintStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  IN_PROGRESS
+  INFO_REQUESTED
+  RESOLVED
+  REJECTED
+}
+
+enum PriorityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id                      String            @id @default(cuid())
+  name                    String?
+  email                   String            @unique
+  emailVerified           DateTime?
+  phone                   String?
+  image                   String?
+  password                String?
+  role                    UserRole          @default(CITIZEN)
+  location                String?
+  department              String?
+  isVerified              Boolean           @default(false)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  points                  Int               @default(0)
+
+  // Additional fields inferred from actions
+  dateOfBirth             DateTime?
+  addressCity             String?
+  addressState            String?
+  civicIdConsent          Boolean           @default(false)
+  citizenId               String?           @unique
+  verificationStatus      String            @default("UNVERIFIED")
+  phoneVerified           Boolean           @default(false)
+  profileCompletenessScore Int               @default(0)
+  idFingerprint           String?
+  trustScore              Int               @default(100)
+
+  // Relations
+  accounts                Account[]
+  sessions                Session[]
+  authenticators          Authenticator[]
+  complaints              Complaint[]       @relation("CitizenComplaints")
+  assignedComplaints      Complaint[]       @relation("OfficerComplaints")
+  auditLogs               AuditLog[]
+  aiHistory               AILegalHistory[]
+  notifications           Notification[]
+  userSettings            UserSettings?
+  legalDocuments          LegalDocument[]
+  lawyerProfile           LawyerProfile?
+  citizenBookings         Booking[]         @relation("CitizenBookings")
+  lawyerBookings          Booking[]         @relation("LawyerBookings")
+  promises                Promise[]
+  requesterPartners       AccountabilityPartner[] @relation("RequesterPartners")
+  receiverPartners        AccountabilityPartner[] @relation("ReceiverPartners")
+  reactions               Reaction[]
+  promiseComments         PromiseComment[]
+  comments                Comment[]
+  votes                   Vote[]
+  badges                  UserBadge[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @id
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Complaint {
+  id                String            @id @default(cuid())
+  trackingId        String            @unique
+  title             String
+  description       String
+  status            ComplaintStatus   @default(SUBMITTED)
+  priority          PriorityLevel     @default(MEDIUM)
+  category          String
+  department        String
+  location          String?
+  pincode           String?
+  citizenId         String
+  assignedOfficerId String?
+  assignedAuthority String?
+  internalNotes     String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  latitude          Float?
+  longitude         Float?
+  clusterId         String?
+
+  // Additional fields inferred from actions
+  verifiedScore     Float             @default(0)
+  flagCount         Int               @default(0)
+
+  citizen           User              @relation("CitizenComplaints", fields: [citizenId], references: [id])
+  assignedOfficer   User?             @relation("OfficerComplaints", fields: [assignedOfficerId], references: [id])
+  cluster           Cluster?          @relation(fields: [clusterId], references: [id])
+  updates           ComplaintUpdate[]
+  attachments       Attachment[]
+  comments          Comment[]
+  votes             Vote[]
+}
+
+model ComplaintUpdate {
+  id          String          @id @default(cuid())
+  complaintId String
+  status      ComplaintStatus
+  remarks     String
+  updatedBy   String
+  createdAt   DateTime        @default(now())
+
+  complaint   Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+}
+
+model Attachment {
+  id          String    @id @default(cuid())
+  url         String
+  filename    String
+  mimeType    String?
+  fileSize    Int?
+  complaintId String
+  createdAt   DateTime  @default(now())
+
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model AILegalHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  query         String
+  response      String
+  legalCategory String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  complaintId String?
+  actionUrl   String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  emailEnabled        Boolean @default(true)
+  pushEnabled         Boolean @default(true)
+  legalUpdatesEnabled Boolean @default(true)
+
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LegalDocument {
+  id          String   @id @default(cuid())
+  userId      String
+  complaintId String?
+  title       String
+  content     String
+  type        String
+  category    String?
+  riskLevel   String?
+  analysis    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LawyerProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  barNumber      String
+  specialization String[]
+  location       String
+  pincode        String
+  fees           Int
+  experience     Int
+  isAvailable    Boolean  @default(true)
+  isVerified     Boolean  @default(false)
+  languages      String[]
+  bio            String?
+  rating         Float    @default(0)
+  createdAt      DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  citizenId   String
+  lawyerId    String
+  date        DateTime
+  timeSlot    String
+  description String
+  status      BookingStatus @default(PENDING)
+  isOffline   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+
+  citizen     User          @relation("CitizenBookings", fields: [citizenId], references: [id])
+  lawyer      User          @relation("LawyerBookings", fields: [lawyerId], references: [id])
+}
+
+model Promise {
+  id             String          @id @default(cuid())
+  userId         String
+  title          String
+  description    String?
+  category       String?
+  targetDate     DateTime?
+  visibility     String          @default("PUBLIC")
+  status         String          @default("ACTIVE")
+  completionRate Int             @default(0)
+  streak         Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  latitude       Float?
+  longitude      Float?
+  completedDate  DateTime?
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  progressEntries ProgressEntry[]
+  proofs         Proof[]
+  reactions      Reaction[]
+  promiseComments PromiseComment[]
+  partners       AccountabilityPartner[]
+}
+
+model ProgressEntry {
+  id        String   @id @default(cuid())
+  promiseId String
+  percentage Int
+  note      String?
+  createdAt DateTime @default(now())
+
+  promise   Promise  @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+}
+
+model Proof {
+  id        String   @id @default(cuid())
+  promiseId String
+  content   String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  promise   Promise  @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+}
+
+model AccountabilityPartner {
+  id          String   @id @default(cuid())
+  requesterId String
+  receiverId  String
+  promiseId   String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+
+  requester   User     @relation("RequesterPartners", fields: [requesterId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("ReceiverPartners", fields: [receiverId], references: [id], onDelete: Cascade)
+  promise     Promise? @relation(fields: [promiseId], references: [id], onDelete: SetNull)
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  userId    String
+  promiseId String
+  type      String   @default("CHEER")
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promise   Promise  @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, promiseId])
+}
+
+model PromiseComment {
+  id        String   @id @default(cuid())
+  userId    String
+  promiseId String
+  content   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promise   Promise  @relation(fields: [promiseId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  content     String
+  userId      String
+  complaintId String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  value       Int
+  userId      String
+  complaintId String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, complaintId])
+}
+
+model Badge {
+  id             String      @id @default(cuid())
+  name           String      @unique
+  description    String
+  icon           String
+  pointsRequired Int
+  createdAt      DateTime    @default(now())
+
+  users          UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model Cluster {
+  id            String      @id @default(cuid())
+  type          String
+  severityScore Int
+  issueCount    Int
+  latitude      Float?
+  longitude     Float?
+  radius        Int
+  status        String      @default("active")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  complaints    Complaint[]
+}

@@ -1,87 +1,89 @@
 import React from 'react';
-import { FileText, Download, Calendar, Filter } from 'lucide-react';
+import { FileText, Download, Calendar, ShieldAlert } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
-const reports = [
-  { id: 1, title: 'Monthly Grievance Summary – June 2026', type: 'Monthly', date: '2026-06-28', size: '2.4 MB', status: 'Ready' },
-  { id: 2, title: 'Department Performance Q2 2026', type: 'Quarterly', date: '2026-06-25', size: '5.1 MB', status: 'Ready' },
-  { id: 3, title: 'Officer Activity Report – June 2026', type: 'Monthly', date: '2026-06-22', size: '1.8 MB', status: 'Ready' },
-  { id: 4, title: 'Category-wise Complaint Analysis', type: 'Ad-hoc', date: '2026-06-18', size: '0.9 MB', status: 'Ready' },
-  { id: 5, title: 'Annual Report 2025-26', type: 'Annual', date: '2026-06-01', size: '12.3 MB', status: 'Generating' },
+const REPORTS = [
+  { id: 1, title: 'Monthly Department Performance – June 2026', date: '2026-06-28', size: '2.4 MB', type: 'Performance', status: 'Ready' },
+  { id: 2, title: 'Complaint Resolution Rate – Q2 2026', date: '2026-06-20', size: '1.8 MB', type: 'Analytics', status: 'Ready' },
+  { id: 3, title: 'Officer Activity Summary – June 2026', date: '2026-06-15', size: '0.9 MB', type: 'Officers', status: 'Ready' },
+  { id: 4, title: 'Category-wise Breakdown – H1 2026', date: '2026-06-10', size: '3.1 MB', type: 'Analytics', status: 'Ready' },
+  { id: 5, title: 'Citizen Satisfaction Index', date: '2026-06-05', size: '1.2 MB', type: 'Survey', status: 'Generating' },
 ];
 
-export default function ReportsPage() {
+const TYPE_COLORS: Record<string, string> = {
+  Performance: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+  Analytics: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+  Officers: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+  Survey: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+};
+
+export default function AdminReportsPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-10">
-      <div className="max-w-7xl mx-auto space-y-6">
-
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-              <FileText className="text-teal-500" size={30} />
-              Reports
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Generate and download official grievance reports.</p>
+    <div className="flex flex-col gap-10 min-h-screen bg-[#020817] text-white p-6 md:p-10">
+      <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-4 border-b border-slate-800/80">
+        <div className="space-y-3 max-w-2xl">
+          <div className="flex items-center gap-3 text-sm font-bold tracking-wider text-slate-400 uppercase">
+            <ShieldAlert className="text-teal-400" size={16} />
+            Reporting Center
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold text-sm transition shadow">
-            <Calendar size={16} />
-            Generate Report
-          </button>
-        </header>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">Reports & Exports</h1>
+          <p className="text-slate-400 text-[15px] leading-relaxed">Download official departmental performance reports and analytics exports.</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-sm transition shadow-lg shadow-teal-500/10">
+          <FileText size={16} /> Generate Report
+        </button>
+      </header>
 
-        {/* Quick generate cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { title: 'Monthly Report', desc: 'Complaints, resolutions, department stats for current month', color: 'bg-blue-600', icon: '📊' },
-            { title: 'Quarterly Report', desc: 'Comprehensive Q2 2026 performance analysis', color: 'bg-purple-600', icon: '📈' },
-            { title: 'Custom Report', desc: 'Choose date range, departments, and categories', color: 'bg-teal-600', icon: '🛠️' },
-          ].map((r) => (
-            <div key={r.title} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition cursor-pointer group">
-              <span className="text-3xl">{r.icon}</span>
-              <h3 className="font-bold text-slate-900 dark:text-slate-100 mt-3">{r.title}</h3>
-              <p className="text-xs text-slate-500 mt-1">{r.desc}</p>
-              <button className={`mt-4 w-full py-2 ${r.color} hover:opacity-90 text-white text-sm font-semibold rounded-xl transition`}>
-                Generate
-              </button>
+      {/* Platform summary */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Reports Available', value: 5, color: 'text-teal-400' },
+          { label: 'Avg. Resolution Rate', value: '89%', color: 'text-emerald-400' },
+          { label: 'Last Generated', value: 'Today', color: 'text-slate-300' },
+        ].map((s) => (
+          <div key={s.label} className="bg-[#0F172A] rounded-xl p-5 border border-slate-800">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{s.label}</p>
+            <p className={`text-2xl font-black mt-1.5 ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <Card padding="lg" className="bg-[#0F172A] border-slate-800">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-6 pb-4 border-b border-slate-800">
+          <FileText className="text-teal-400" size={20} />
+          Available Reports
+        </h2>
+        <div className="space-y-3">
+          {REPORTS.map((r) => (
+            <div key={r.id} className="flex items-center justify-between p-5 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700 transition-all group">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-teal-500/10 border border-teal-500/20 rounded-xl flex items-center justify-center shrink-0">
+                  <FileText size={18} className="text-teal-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-200 text-sm group-hover:text-white transition-colors">{r.title}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-xs text-slate-500 flex items-center gap-1"><Calendar size={10} /> {r.date}</span>
+                    <span className="text-xs text-slate-500">·</span>
+                    <span className="text-xs text-slate-500">{r.size}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${TYPE_COLORS[r.type]}`}>{r.type}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${r.status === 'Ready' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20 animate-pulse'}`}>
+                  {r.status}
+                </span>
+                {r.status === 'Ready' && (
+                  <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-teal-500/50 hover:bg-teal-500/5 text-slate-400 hover:text-teal-400 transition-all">
+                    <Download size={15} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
-
-        {/* Reports list */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="font-bold text-slate-900 dark:text-slate-100">Recent Reports</h2>
-            <button className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              <Filter size={14} />
-              Filter
-            </button>
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {reports.map((report) => (
-              <div key={report.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-teal-50 dark:bg-teal-500/10 rounded-xl flex items-center justify-center">
-                    <FileText size={18} className="text-teal-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{report.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{report.type} · {report.date} · {report.size}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${report.status === 'Ready' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>
-                    {report.status}
-                  </span>
-                  {report.status === 'Ready' && (
-                    <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:text-teal-500 text-slate-500 transition">
-                      <Download size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }

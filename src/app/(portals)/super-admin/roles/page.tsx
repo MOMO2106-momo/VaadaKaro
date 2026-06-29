@@ -1,63 +1,79 @@
 import React from 'react';
-import { Key, Shield, Users, Lock, CheckCircle, Edit } from 'lucide-react';
+import { Key, Shield, CheckCircle, Users } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
-const roles = [
-  { role: 'CITIZEN', label: 'Citizen', desc: 'Can file complaints, track issues, use AI assistant', permissions: ['File Complaint', 'Track Complaint', 'View AI Assistant', 'Community Map'], count: 4821, color: '#64748b' },
-  { role: 'LAWYER', label: 'Lawyer', desc: 'Same as citizen with legal advisory access', permissions: ['All Citizen Permissions', 'Legal Advisory Panel'], count: 48, color: '#8b5cf6' },
-  { role: 'OFFICER', label: 'Officer', desc: 'Can manage assigned cases and verifications', permissions: ['Citizen Portal', 'Officer Portal', 'Manage Cases', 'Verifications'], count: 26, color: '#3b82f6' },
-  { role: 'ADMIN', label: 'Admin', desc: 'Full department-level administration', permissions: ['All Officer Permissions', 'Admin Portal', 'Manage Officers', 'Reports'], count: 8, color: '#f97316' },
-  { role: 'DEPARTMENT_ADMIN', label: 'Dept Admin', desc: 'Department-scoped admin access', permissions: ['Admin Portal', 'Dept Officers Only', 'Dept Analytics'], count: 12, color: '#6366f1' },
-  { role: 'SUPER_ADMIN', label: 'Super Admin', desc: 'Full platform control, all portals', permissions: ['All Portals', 'Manage All Users', 'System Settings', 'Audit Logs'], count: 2, color: '#ef4444' },
+const ROLES = [
+  {
+    role: 'CITIZEN', label: 'Citizen', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+    desc: 'Default role for registered users. Can file complaints and track grievances.',
+    permissions: ['File Complaints', 'Track Status', 'Use AI Assistant', 'View Announcements'],
+    count: 12400,
+  },
+  {
+    role: 'OFFICER', label: 'Officer', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+    desc: 'Field staff responsible for investigating and resolving assigned complaints.',
+    permissions: ['View Assigned Cases', 'Update Case Status', 'Verify Documents', 'View Heatmap', 'Use AI Colleague'],
+    count: 38,
+  },
+  {
+    role: 'ADMIN', label: 'Admin', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+    desc: 'Department administrators managing officers, departments, and analytics.',
+    permissions: ['Manage Officers', 'Assign Cases', 'Department Setup', 'View Analytics', 'Generate Reports', 'Platform Settings'],
+    count: 5,
+  },
+  {
+    role: 'SUPER_ADMIN', label: 'Super Admin', color: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+    desc: 'Root platform administrators with full control over all roles and configuration.',
+    permissions: ['All Admin Permissions', 'Manage All Users', 'Role Assignment', 'Audit Logs', 'System Configuration', 'Delete Users'],
+    count: 2,
+  },
 ];
 
 export default function SuperAdminRolesPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-10">
-      <div className="max-w-7xl mx-auto space-y-6">
-
-        <header>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-            <Key className="text-purple-500" size={30} />
-            Roles & Permissions
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">View and configure platform role definitions and access levels.</p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {roles.map((r) => (
-            <div key={r.role} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: r.color + '20', color: r.color }}>
-                    <Shield size={18} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100">{r.label}</h3>
-                    <span className="text-xs font-mono text-slate-400">{r.role}</span>
-                  </div>
-                </div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: r.color + '15', color: r.color }}>
-                  {r.count} users
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-500 mb-4">{r.desc}</p>
-
-              <div className="space-y-1.5">
-                {r.permissions.map((p) => (
-                  <div key={p} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                    <CheckCircle size={12} className="text-emerald-500 shrink-0" />
-                    {p}
-                  </div>
-                ))}
-              </div>
-
-              <button className="mt-4 w-full py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:border-purple-400 hover:text-purple-500 transition flex items-center justify-center gap-2">
-                <Edit size={13} /> Edit Permissions
-              </button>
-            </div>
-          ))}
+    <div className="flex flex-col gap-10 min-h-screen bg-[#020817] text-white p-6 md:p-10">
+      <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-4 border-b border-slate-800/80">
+        <div className="space-y-3 max-w-2xl">
+          <div className="flex items-center gap-3 text-sm font-bold tracking-wider text-slate-400 uppercase">
+            <Key className="text-rose-400" size={16} />
+            Access Control
+          </div>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">Roles & Permissions</h1>
+          <p className="text-slate-400 text-[15px] leading-relaxed">Configure what each user role can and cannot do on the platform.</p>
         </div>
+      </header>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {ROLES.map((r) => (
+          <Card key={r.role} padding="lg" className="bg-[#0F172A] border-slate-800 hover:border-slate-700 transition-all">
+            <div className="flex items-start justify-between mb-4 pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${r.color}`}>
+                  <Shield size={16} />
+                </div>
+                <div>
+                  <h3 className="font-black text-white">{r.label}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{r.desc}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-400 text-xs font-semibold">
+                <Users size={12} /> {r.count.toLocaleString()}
+              </div>
+            </div>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Permissions</p>
+            <ul className="space-y-2">
+              {r.permissions.map((p) => (
+                <li key={p} className="flex items-center gap-2.5 text-sm text-slate-300">
+                  <CheckCircle size={14} className="text-emerald-500 shrink-0" />
+                  {p}
+                </li>
+              ))}
+            </ul>
+            <button className="mt-5 w-full py-2.5 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white bg-slate-950 hover:bg-slate-900 rounded-xl text-xs font-bold transition-all">
+              Edit Permissions
+            </button>
+          </Card>
+        ))}
       </div>
     </div>
   );

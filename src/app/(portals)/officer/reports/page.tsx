@@ -1,78 +1,86 @@
 import React from 'react';
-import { FileText, Download, Calendar, BarChart2 } from 'lucide-react';
+import { FileText, Download, Calendar, ShieldCheck } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
-const reports = [
-  { id: 1, title: 'My Cases Summary – June 2026', date: '2026-06-28', size: '0.8 MB', status: 'Ready' },
-  { id: 2, title: 'Verified Documents – Q2 2026', date: '2026-06-20', size: '1.2 MB', status: 'Ready' },
-  { id: 3, title: 'Resolution Time Analysis', date: '2026-06-15', size: '0.5 MB', status: 'Ready' },
-  { id: 4, title: 'Citizen Feedback Report', date: '2026-06-10', size: '2.1 MB', status: 'Generating' },
+const REPORTS = [
+  { id: 1, title: 'My Cases Summary – June 2026', date: '2026-06-28', size: '0.8 MB', type: 'Summary', status: 'Ready' },
+  { id: 2, title: 'Verified Documents – Q2 2026', date: '2026-06-20', size: '1.2 MB', type: 'Documents', status: 'Ready' },
+  { id: 3, title: 'Resolution Time Analysis', date: '2026-06-15', size: '0.5 MB', type: 'Analytics', status: 'Ready' },
+  { id: 4, title: 'Citizen Feedback Report', date: '2026-06-10', size: '2.1 MB', type: 'Feedback', status: 'Generating' },
 ];
+
+const TYPE_COLORS: Record<string, string> = {
+  Summary: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+  Documents: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+  Analytics: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+  Feedback: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+};
 
 export default function OfficerReportsPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-10">
-      <div className="max-w-5xl mx-auto space-y-6">
-
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-              <FileText className="text-teal-500" size={30} />
-              My Reports
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Download reports on your cases and performance.</p>
+    <div className="flex flex-col gap-10 min-h-screen bg-[#020817] text-white p-6 md:p-10">
+      <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-4 border-b border-slate-800/80">
+        <div className="space-y-3 max-w-2xl">
+          <div className="flex items-center gap-3 text-sm font-bold tracking-wider text-slate-400 uppercase">
+            <ShieldCheck className="text-teal-400" size={16} />
+            My Reports
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold text-sm transition shadow">
-            <BarChart2 size={16} />
-            Generate Report
-          </button>
-        </header>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">Reports & Downloads</h1>
+          <p className="text-slate-400 text-[15px] leading-relaxed">Download performance summaries and case analytics for your jurisdiction.</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-sm transition shadow-lg shadow-teal-500/10">
+          <FileText size={16} /> Generate Report
+        </button>
+      </header>
 
-        {/* Performance Summary */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'Cases Handled', value: '24', color: 'text-blue-500' },
-            { label: 'Avg Resolution Time', value: '2.1 days', color: 'text-purple-500' },
-            { label: 'Satisfaction Rate', value: '94%', color: 'text-emerald-500' },
-          ].map((s) => (
-            <div key={s.label} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-slate-500 mt-1 font-semibold">{s.label}</p>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Cases Handled', value: '24', color: 'text-blue-400' },
+          { label: 'Avg Resolution', value: '2.1d', color: 'text-purple-400' },
+          { label: 'Satisfaction', value: '94%', color: 'text-emerald-400' },
+        ].map(s => (
+          <div key={s.label} className="bg-[#0F172A] rounded-xl p-5 border border-slate-800 text-center">
+            <p className={`text-3xl font-black ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <Card padding="lg" className="bg-[#0F172A] border-slate-800">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-6 pb-4 border-b border-slate-800">
+          <FileText className="text-teal-400" size={20} /> Available Reports
+        </h2>
+        <div className="space-y-3">
+          {REPORTS.map(r => (
+            <div key={r.id} className="flex items-center justify-between p-5 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700 transition-all group">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-teal-500/10 border border-teal-500/20 rounded-xl flex items-center justify-center shrink-0">
+                  <FileText size={18} className="text-teal-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-200 text-sm group-hover:text-white transition-colors">{r.title}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-xs text-slate-500 flex items-center gap-1"><Calendar size={10} /> {r.date}</span>
+                    <span className="text-xs text-slate-500">·</span>
+                    <span className="text-xs text-slate-500">{r.size}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${TYPE_COLORS[r.type]}`}>{r.type}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${r.status === 'Ready' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20 animate-pulse'}`}>
+                  {r.status}
+                </span>
+                {r.status === 'Ready' && (
+                  <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-teal-500/50 hover:text-teal-400 text-slate-400 transition-all">
+                    <Download size={15} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
-
-        {/* Reports List */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="font-bold text-slate-900 dark:text-slate-100">Available Reports</h2>
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {reports.map((r) => (
-              <div key={r.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-teal-50 dark:bg-teal-500/10 rounded-xl flex items-center justify-center">
-                    <FileText size={18} className="text-teal-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{r.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{r.date} · {r.size}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${r.status === 'Ready' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>
-                    {r.status}
-                  </span>
-                  {r.status === 'Ready' && (
-                    <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:text-teal-500 text-slate-500 transition">
-                      <Download size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }

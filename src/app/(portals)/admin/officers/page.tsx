@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { Users, Plus, Search, Filter, Shield, CheckCircle, XCircle, Clock, X } from 'lucide-react';
+import { Users, Plus, Search, CheckCircle, XCircle, Clock, X, ShieldAlert } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
 
 const OFFICERS = [
   { id: 1, name: 'Rajesh Kumar', email: 'rajesh.kumar@gov.in', department: 'Public Works', status: 'Active', cases: 24, joined: '2025-01-15' },
@@ -42,37 +43,37 @@ export default function OfficersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-10">
+    <div className="flex flex-col gap-10 min-h-screen bg-[#020817] text-white p-6 md:p-10">
       {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-semibold animate-pulse">
+        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-semibold animate-pulse border border-emerald-500/20">
           ✓ {toast}
         </div>
       )}
 
       {/* Manage Modal */}
       {selected && (
-        <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-900 dark:text-slate-100">Manage Officer</h3>
-              <button onClick={() => setSelected(null)}><X size={18} className="text-slate-400" /></button>
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelected(null)}>
+          <div className="bg-[#0F172A] rounded-2xl border border-slate-800 p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-850">
+              <h3 className="font-bold text-white">Manage Officer</h3>
+              <button onClick={() => setSelected(null)} className="text-slate-400 hover:text-white transition"><X size={18} /></button>
             </div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">{selected.name.charAt(0)}</div>
+              <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">{selected.name.charAt(0)}</div>
               <div>
-                <p className="font-bold text-slate-900 dark:text-slate-100">{selected.name}</p>
-                <p className="text-sm text-slate-500">{selected.email}</p>
-                <p className="text-xs text-slate-400">{selected.department}</p>
+                <p className="font-bold text-white">{selected.name}</p>
+                <p className="text-xs text-slate-400">{selected.email}</p>
+                <p className="text-xs text-blue-400 font-bold mt-0.5">{selected.department}</p>
               </div>
             </div>
             <div className="space-y-2">
-              <button onClick={() => toggleStatus(selected.id)} className={`w-full py-2.5 rounded-xl text-sm font-semibold transition ${selected.status === 'Active' ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200'}`}>
+              <button onClick={() => toggleStatus(selected.id)} className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all border ${selected.status === 'Active' ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30'}`}>
                 {selected.status === 'Active' ? '⛔ Deactivate Officer' : '✅ Activate Officer'}
               </button>
-              <button onClick={() => { showToast(`Reset password email sent to ${selected.email}`); setSelected(null); }} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition">
+              <button onClick={() => { showToast(`Reset password email sent to ${selected.email}`); setSelected(null); }} className="w-full py-2.5 rounded-xl text-xs font-bold bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-400 transition-all">
                 🔑 Reset Password
               </button>
-              <button onClick={() => { showToast(`Reassignment request for ${selected.name} submitted`); setSelected(null); }} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 transition">
+              <button onClick={() => { showToast(`Reassignment request for ${selected.name} submitted`); setSelected(null); }} className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all">
                 🔄 Reassign Department
               </button>
             </div>
@@ -80,86 +81,92 @@ export default function OfficersPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-              <Users className="text-blue-500" size={30} /> Officers Management
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Manage government officers and their assignments.</p>
+      {/* Header */}
+      <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-4 border-b border-slate-800/80">
+        <div className="space-y-3 max-w-2xl">
+          <div className="flex items-center gap-3 text-sm font-bold tracking-wider text-slate-400 uppercase">
+            <ShieldAlert className="text-blue-400" size={16} />
+            Officers Center
           </div>
-          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition shadow">
-            <Plus size={16} /> Add Officer
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">
+            Officers Management
+          </h1>
+          <p className="text-slate-400 text-[15px] leading-relaxed">
+            Manage government officers, departments, and credentials.
+          </p>
+        </div>
+        <button onClick={() => showToast('Feature in active development')} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition shadow-lg shadow-blue-500/10">
+          <Plus size={16} /> Add Officer
+        </button>
+      </header>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-4">
+        {(['All', 'Active', 'Pending'] as const).map(s => (
+          <button key={s} onClick={() => setFilterStatus(s)} className={`rounded-xl p-5 border text-left transition-all ${filterStatus === s ? 'border-blue-500 bg-blue-500/5' : 'border-slate-800 bg-[#0F172A]'}`}>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{s === 'All' ? 'Total Officers' : s}</p>
+            <p className={`text-3xl font-black mt-1.5 ${s === 'All' ? 'text-blue-400' : s === 'Active' ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {s === 'All' ? officers.length : officers.filter(o => o.status === s).length}
+            </p>
           </button>
-        </header>
-
-        <div className="grid grid-cols-3 gap-4">
-          {(['All', 'Active', 'Pending'] as const).map(s => (
-            <button key={s} onClick={() => setFilterStatus(s)} className={`rounded-xl p-4 border text-left transition ${filterStatus === s ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s === 'All' ? 'Total Officers' : s}</p>
-              <p className={`text-3xl font-bold mt-1 ${s === 'All' ? 'text-blue-500' : s === 'Active' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                {s === 'All' ? officers.length : officers.filter(o => o.status === s).length}
-              </p>
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-2 flex-1 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2">
-              <Search size={16} className="text-slate-400" />
-              <input className="bg-transparent flex-1 text-sm text-slate-700 dark:text-slate-300 placeholder-slate-400 outline-none" placeholder="Search officers..." value={search} onChange={e => setSearch(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  <th className="px-4 py-3">Officer</th>
-                  <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Active Cases</th>
-                  <th className="px-4 py-3">Joined</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-400 text-sm">No officers found.</td></tr>
-                )}
-                {filtered.map(officer => (
-                  <tr key={officer.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">{officer.name.charAt(0)}</div>
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{officer.name}</p>
-                          <p className="text-xs text-slate-500">{officer.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{officer.department}</td>
-                    <td className="px-4 py-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${officer.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : officer.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                        {officer.status === 'Active' ? <CheckCircle size={10} /> : officer.status === 'Pending' ? <Clock size={10} /> : <XCircle size={10} />}
-                        {officer.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300">{officer.cases}</td>
-                    <td className="px-4 py-4 text-sm text-slate-500">{officer.joined}</td>
-                    <td className="px-4 py-4 text-right">
-                      <button onClick={() => setSelected(officer)} className="text-xs px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-400 hover:text-blue-500 transition text-slate-600 dark:text-slate-400">
-                        Manage
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        ))}
       </div>
+
+      {/* Table Container */}
+      <Card padding="lg" className="bg-[#0F172A] border-slate-800">
+        <div className="flex items-center gap-3 p-4 border-b border-slate-800/80 mb-4">
+          <div className="flex items-center gap-2 flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5">
+            <Search size={16} className="text-slate-500" />
+            <input className="bg-transparent flex-1 text-sm text-slate-300 placeholder-slate-500 outline-none w-full" placeholder="Search officers by name, email or department..." value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-850 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                <th className="pb-4 px-3">Officer</th>
+                <th className="pb-4 px-3">Department</th>
+                <th className="pb-4 px-3">Status</th>
+                <th className="pb-4 px-3">Active Cases</th>
+                <th className="pb-4 px-3">Joined</th>
+                <th className="pb-4 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-900">
+              {filtered.length === 0 && (
+                <tr><td colSpan={6} className="py-12 text-center text-slate-500 text-sm">No officers found matching the criteria.</td></tr>
+              )}
+              {filtered.map(officer => (
+                <tr key={officer.id} className="hover:bg-slate-950/40 transition-colors group">
+                  <td className="py-4 px-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm">{officer.name.charAt(0)}</div>
+                      <div>
+                        <p className="font-bold text-slate-200 text-sm">{officer.name}</p>
+                        <p className="text-xs text-slate-500">{officer.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-3 text-sm text-slate-400 font-medium">{officer.department}</td>
+                  <td className="py-4 px-3">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold uppercase border ${officer.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : officer.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                      {officer.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-3 text-sm font-bold text-slate-300">{officer.cases}</td>
+                  <td className="py-4 px-3 text-sm text-slate-500">{officer.joined}</td>
+                  <td className="py-4 px-3 text-right">
+                    <button onClick={() => setSelected(officer)} className="text-xs px-3.5 py-2 bg-slate-900 border border-slate-800 hover:border-slate-650 hover:bg-slate-800 rounded-xl text-slate-300 font-bold transition-all shadow-sm">
+                      Manage
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
