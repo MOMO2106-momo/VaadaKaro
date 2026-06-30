@@ -63,7 +63,16 @@ export default function NewPromisePage() {
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="e.g. Fix the broken streetlight on Ward 14"
-              style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "1rem" }}
+              style={{
+                width: "100%",
+                padding: "0.75rem 1rem",
+                borderRadius: 8,
+                border: "1px solid #cbd5e1",
+                fontSize: "1rem",
+                color: "#111827",
+                backgroundColor: "#fff",
+                // placeholder color via ::placeholder pseudo not possible inline, use CSS class fallback
+              }}
             />
           </div>
 
@@ -75,7 +84,16 @@ export default function NewPromisePage() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Describe your commitment, expected outcome, and how the community will benefit..."
-              style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "1rem", resize: "vertical" }}
+              style={{
+                width: "100%",
+                padding: "0.75rem 1rem",
+                borderRadius: 8,
+                border: "1px solid #cbd5e1",
+                fontSize: "1rem",
+                resize: "vertical",
+                color: "#111827",
+                backgroundColor: "#fff",
+              }}
             />
           </div>
 
@@ -87,7 +105,14 @@ export default function NewPromisePage() {
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                style={{ width: "100%", padding: "0.75rem", borderRadius: 8, border: "1px solid #cbd5e1" }}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  color: "#111827",
+                  backgroundColor: "#fff",
+                }}
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -116,7 +141,17 @@ export default function NewPromisePage() {
                 { value: "PUBLIC", label: "Public", icon: Globe },
                 { value: "PRIVATE", label: "Private", icon: Lock },
               ].map(({ value, label, icon: Icon }) => (
-                <label key={value} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "0.5rem 1rem", borderRadius: 8, border: form.visibility === value ? "2px solid #1e3a8a" : "1px solid #cbd5e1", background: form.visibility === value ? "#eff6ff" : "#fff" }}>
+                <label key={value} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  padding: "0.5rem 1rem",
+                  borderRadius: 8,
+                  border: form.visibility === value ? "2px solid #1e3a8a" : "1px solid #cbd5e1",
+                  background: form.visibility === value ? "#eff6ff" : "#fff",
+                  color: "#111827",
+                }}>
                   <input type="radio" name="visibility" value={value} checked={form.visibility === value} onChange={() => setForm({ ...form, visibility: value })} style={{ display: "none" }} />
                   <Icon size={16} /> {label}
                 </label>

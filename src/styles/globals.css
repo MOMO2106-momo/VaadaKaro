@@ -184,6 +184,18 @@ textarea,
   user-select: text;
 }
 
+/* Custom placeholder colors */
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280; /* gray-500 */
+  opacity: 1;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
 a {
   color: inherit;
   text-decoration: none;
