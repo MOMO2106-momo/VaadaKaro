@@ -1,13 +1,14 @@
-import { GamificationService } from "./gamification.service";
+/**
+ * DEPRECATED: This file is no longer in use.
+ *
+ * Badge seeding is now handled exclusively by `prisma/seed.ts`.
+ * Run `npx prisma db seed` to seed the 6 canonical badges defined there.
+ *
+ * GamificationService.seedBadges() and BADGES_CONFIG have been removed to
+ * eliminate duplicate badge definitions. The checkAndAwardBadges() method
+ * queries the Badge table dynamically and does not use any hardcoded config.
+ */
 
-async function main() {
-  console.log("Seeding badges...");
-  await GamificationService.seedBadges();
-  console.log("Badges seeded successfully.");
-}
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+console.warn(
+  "[seed-badges] DEPRECATED: Use `npx prisma db seed` instead. This file is no longer functional."
+);

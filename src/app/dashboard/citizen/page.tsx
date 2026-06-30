@@ -14,6 +14,7 @@ import { StatGrid } from "@/components/dashboard/StatGrid";
 import SubmissionList from "@/components/dashboard/SubmissionList";
 import PersonalInfoCard from "@/components/dashboard/PersonalInfoCard";
 import AchievementSidebar from "@/components/dashboard/AchievementSidebar";
+import { getUserBadges } from "@/lib/actions/leaderboardActions";
 
 
 import type {
@@ -98,14 +99,7 @@ const MOCK_SUBMISSIONS: Submission[] = [
     },
 ];
 
-const MOCK_ACHIEVEMENTS: Achievement[] = [
-    { id: "1", name: "First Report", description: "Filed your first civic complaint", icon: "🏅", earned: true, pointsRequired: 50 },
-    { id: "2", name: "Truth Seeker", description: "Verified 10 complaints from others", icon: "🔍", earned: true, pointsRequired: 200 },
-    { id: "3", name: "Community Voice", description: "Got 25 upvotes on complaints", icon: "📣", earned: true, pointsRequired: 500 },
-    { id: "4", name: "Justice Warrior", description: "Had 5 complaints fully resolved", icon: "⚖️", earned: false, pointsRequired: 750 },
-    { id: "5", name: "Civic Champion", description: "Reach top 10 on the leaderboard", icon: "🏆", earned: false, pointsRequired: 1500 },
-    { id: "6", name: "Legend", description: "Contribute 5000 points total", icon: "🌟", earned: false, pointsRequired: 5000 },
-];
+// Badge data is fetched live from the database via getUserBadges() server action.
 
 // ─── Quick Action Definition ───────────────────────────────────────────────────
 
@@ -153,13 +147,19 @@ export default function CitizenDashboardPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setProfile(MOCK_PROFILE);
-            setSubmissions(MOCK_SUBMISSIONS);
-            setAchievements(MOCK_ACHIEVEMENTS);
-            setLoading(false);
-        }, 600);
-        return () => clearTimeout(timer);
+        let cancelled = false;
+        async function load() {
+            // Fetch real badge data from the database
+            const result = await getUserBadges();
+            if (!cancelled) {
+                setProfile(MOCK_PROFILE);
+                setSubmissions(MOCK_SUBMISSIONS);
+                setAchievements(result.badges as Achievement[]);
+                setLoading(false);
+            }
+        }
+        load();
+        return () => { cancelled = true; };
     }, []);
 
     if (loading) {

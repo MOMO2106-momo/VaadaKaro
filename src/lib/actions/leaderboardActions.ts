@@ -2,6 +2,47 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
 /**
+ * Fetch all badges in the system, merged with the current user's earned badges.
+ * Returns an array shaped as Achievement[] (with earned: boolean).
+ */
+export async function getUserBadges() {
+  "use server";
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return { success: false, badges: [] };
+
+    const userId = session.user.id;
+
+    // All available badges, ordered by points required
+    const allBadges = await (prisma as any).badge.findMany({
+      orderBy: { pointsRequired: "asc" },
+    });
+
+    // Badges this user has already earned
+    const userBadges = await (prisma as any).userBadge.findMany({
+      where: { userId },
+      select: { badgeId: true },
+    });
+
+    const earnedBadgeIds = new Set(userBadges.map((ub: any) => ub.badgeId));
+
+    const badges = allBadges.map((b: any) => ({
+      id: b.id,
+      name: b.name,
+      description: b.description,
+      icon: b.icon ?? "🏅",
+      earned: earnedBadgeIds.has(b.id),
+      pointsRequired: b.pointsRequired,
+    }));
+
+    return { success: true, badges };
+  } catch (error) {
+    console.error("[GET_USER_BADGES_ERROR]:", error);
+    return { success: false, badges: [] };
+  }
+}
+
+/**
  * Fetch top users for the leaderboard.
  */
 export async function getLeaderboardData() {
@@ -21,7 +62,7 @@ export async function getLeaderboardData() {
           select: {
             complaints: true,
             votes: true,
-            userBadges: true,
+            badges: true,
           }
         }
       }

@@ -49,7 +49,7 @@ export default async function LeaderboardPage() {
           <div key={user.id} className={`${styles.podiumCard} ${styles[`rank${index + 1}`]}`}>
             <div className={styles.avatarLarge}>
               {user.image ? <img src={user.image} alt={user.name || ""} /> : <Medal size={40} />}
-              <div className={styles.badgeCount}>{user._count.userBadges}</div>
+              <div className={styles.badgeCount}>{user._count.badges}</div>
             </div>
             <h3 className={styles.userName}>{user.name || "Anonymous Citizen"}</h3>
             <div className={styles.userPoints}>{user.trustScore} Trust</div>
@@ -90,7 +90,7 @@ export default async function LeaderboardPage() {
                   </td>
                   <td>{user._count.complaints} Reports</td>
                   <td>{user._count.votes} Votes</td>
-                  <td>{user._count.userBadges} Badges</td>
+                  <td>{user._count.badges} Badges</td>
                   <td className={styles.pointsCell}>{user.trustScore}</td>
                 </tr>
               );

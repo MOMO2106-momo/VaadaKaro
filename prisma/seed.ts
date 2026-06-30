@@ -1,10 +1,65 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+const BADGES = [
+  {
+    name: 'First Report',
+    description: 'Filed your first civic complaint',
+    icon: '🏅',
+    pointsRequired: 50,
+  },
+  {
+    name: 'Truth Seeker',
+    description: 'Verified 10 complaints from others',
+    icon: '🔍',
+    pointsRequired: 200,
+  },
+  {
+    name: 'Community Voice',
+    description: 'Got 25 upvotes on complaints',
+    icon: '📣',
+    pointsRequired: 500,
+  },
+  {
+    name: 'Justice Warrior',
+    description: 'Had 5 complaints fully resolved',
+    icon: '⚖️',
+    pointsRequired: 750,
+  },
+  {
+    name: 'Civic Champion',
+    description: 'Reach top 10 on the leaderboard',
+    icon: '🏆',
+    pointsRequired: 1500,
+  },
+  {
+    name: 'Legend',
+    description: 'Contribute 5000 points total',
+    icon: '🌟',
+    pointsRequired: 5000,
+  },
+];
+
 async function main() {
   console.log('Seeding data...');
 
-  // Create some users with LAWYER role
+  // 1. Seed Badges
+  let badgeCount = 0;
+  for (const badge of BADGES) {
+    await prisma.badge.upsert({
+      where: { name: badge.name },
+      update: {
+        description: badge.description,
+        icon: badge.icon,
+        pointsRequired: badge.pointsRequired,
+      },
+      create: badge,
+    });
+    badgeCount++;
+  }
+  console.log(`Seeded ${badgeCount} badges.`);
+
+  // 2. Seed Lawyers
   const lawyers = [
     {
       name: 'Adv. Rahul Deshmukh',
@@ -14,7 +69,7 @@ async function main() {
       lawyerProfile: {
         create: {
           barNumber: 'MAH/1234/2010',
-          specialization: ['Criminal', 'RTl'],
+          specialization: ['Criminal', 'RTI'], // Typo RTl corrected to RTI
           location: 'Mumbai',
           pincode: '400001',
           fees: 1500,
@@ -46,6 +101,7 @@ async function main() {
     }
   ];
 
+  let lawyerCount = 0;
   for (const lawyer of lawyers) {
     await prisma.user.upsert({
       where: { email: lawyer.email },
@@ -58,7 +114,9 @@ async function main() {
         lawyerProfile: lawyer.lawyerProfile
       } as any
     });
+    lawyerCount++;
   }
+  console.log(`Seeded ${lawyerCount} lawyers.`);
 
   console.log('Seed completed successfully!');
 }

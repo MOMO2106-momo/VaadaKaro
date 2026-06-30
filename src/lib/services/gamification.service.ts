@@ -8,13 +8,6 @@ export const POINTS_CONFIG = {
   COMMENT: 2,
 };
 
-export const BADGES_CONFIG = [
-  { name: "First Reporter", description: "Awarded for earning your first 100 points.", icon: "🥉", pointsRequired: 100 },
-  { name: "Community Helper", description: "Awarded for earning 500 points.", icon: "🥈", pointsRequired: 500 },
-  { name: "Citizen Hero", description: "Awarded for earning 1000 points.", icon: "🥇", pointsRequired: 1003 },
-  { name: "Hyperlocal Champion", description: "Awarded for earning 2500 points.", icon: "🏆", pointsRequired: 2500 },
-];
-
 export class GamificationService {
   /**
    * Award points to a user and check for new badges.
@@ -46,6 +39,8 @@ export class GamificationService {
 
   /**
    * Check if user qualifies for new badges based on their total points.
+   * Queries the Badge table dynamically — badge criteria live in the database,
+   * seeded via prisma/seed.ts. No hardcoded config needed here.
    */
   static async checkAndAwardBadges(userId: string, totalPoints: number) {
     // Get badges user already has
@@ -74,7 +69,7 @@ export class GamificationService {
         })),
       });
 
-      // Optional: Create notification for each new badge
+      // Create notification for each new badge
       for (const badge of (eligibleBadges as any[])) {
         await (prisma as any).notification.create({
           data: {
@@ -87,21 +82,5 @@ export class GamificationService {
       }
     }
   }
-
-  /**
-   * Initialize badges in the database if they don't exist.
-   */
-  static async seedBadges() {
-    for (const badge of BADGES_CONFIG) {
-      await (prisma as any).badge.upsert({
-        where: { name: (badge as any).name },
-        update: {
-          description: (badge as any).description,
-          icon: (badge as any).icon,
-          pointsRequired: (badge as any).pointsRequired,
-        },
-        create: badge,
-      });
-    }
-  }
 }
+

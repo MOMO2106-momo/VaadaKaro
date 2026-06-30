@@ -35,6 +35,7 @@ export const Header = async () => {
           <nav className={styles.nav}>
             <Link href="/" className={styles.navItem}>Home</Link>
             <Link href="/dashboard" className={styles.navItem}>Dashboard</Link>
+            <Link href="/city-wide-impact" className={styles.navItem}>Impact</Link>
             <Link href="/community-map" className={styles.navItem}>Map</Link>
             <Link href="/ai-assistant" className={styles.navItem}>VaadaAI</Link>
             <Link href="/leaderboard" className={styles.navItem}>Community</Link>
