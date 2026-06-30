@@ -1,3 +1,5 @@
+"use server";
+
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
@@ -6,7 +8,6 @@ import { auth } from "@/auth";
  * Returns an array shaped as Achievement[] (with earned: boolean).
  */
 export async function getUserBadges() {
-  "use server";
   try {
     const session = await auth();
     if (!session?.user?.id) return { success: false, badges: [] };
