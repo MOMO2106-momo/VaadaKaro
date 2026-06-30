@@ -5,10 +5,10 @@
   "scripts": {
     "clean": "node scripts/clean-dev.js",
     "dev": "node scripts/clean-dev.js && next dev",
-    "build": "next build",
+    "build": "prisma generate --schema=prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=prisma/schema.prisma"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
