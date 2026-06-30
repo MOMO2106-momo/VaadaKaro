@@ -129,7 +129,14 @@ export default function NewPromisePage() {
                 min={new Date().toISOString().split("T")[0]}
                 value={form.targetDate}
                 onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
-                style={{ width: "100%", padding: "0.75rem", borderRadius: 8, border: "1px solid #cbd5e1" }}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  color: "#111827",
+                  backgroundColor: "#fff",
+                }}
               />
             </div>
           </div>
