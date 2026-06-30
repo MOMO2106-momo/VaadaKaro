@@ -421,11 +421,6 @@ body * {
   -webkit-tap-highlight-color: transparent;
 }
 
-::selection {
-  background: rgba(34, 197, 94, 0.28);
-  color: var(--foreground);
-}
-
 button,
 a,
 input,
