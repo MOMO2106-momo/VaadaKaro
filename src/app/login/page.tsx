@@ -120,7 +120,6 @@ export default function LoginPage() {
           <p className="text-[11px] text-slate-500 text-center font-bold uppercase tracking-widest mb-4">Quick Portal Access</p>
           <div className="flex justify-center gap-3">
             {[
-              { role: 'CITIZEN', label: 'Citizen', emoji: '👤', border: 'hover:border-blue-500/50 hover:bg-blue-500/5', text: 'group-hover:text-blue-400', path: '/citizen/dashboard' },
               { role: 'OFFICER', label: 'Officer', emoji: '🛡️', border: 'hover:border-emerald-500/50 hover:bg-emerald-500/5', text: 'group-hover:text-emerald-400', path: '/officer/dashboard' },
               { role: 'ADMIN', label: 'Admin', emoji: '⚙️', border: 'hover:border-orange-500/50 hover:bg-orange-500/5', text: 'group-hover:text-orange-400', path: '/admin/dashboard' },
               { role: 'SUPER_ADMIN', label: 'Super', emoji: '👑', border: 'hover:border-purple-500/50 hover:bg-purple-500/5', text: 'group-hover:text-purple-400', path: '/super-admin/dashboard' },

@@ -401,14 +401,6 @@ button {
   }
 }
 
-:root {
-  color-scheme: light dark;
-}
-
-html {
-  color-scheme: light dark;
-}
-
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
