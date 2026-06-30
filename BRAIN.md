@@ -169,12 +169,12 @@ VoteType:       UPVOTE | DOWNVOTE
 2. NextAuth creates a **JWT** (not database session — `strategy: "jwt"`)
 3. JWT contains: `id`, `name`, `email`, `image`, `role`, `department`
 4. `auth()` is called server-side in every action/page to get session
-5. `middleware.ts` runs on every request (except static assets) to enforce auth
+5. `middleware.ts` imports from `./auth.config` (Edge-safe configuration) to enforce auth at the Edge without loading Prisma (which crashes in Edge runtimes). It evaluates `isLoggedIn` using both `req.auth` and the `demo_role` cookie for quick test-bypasses.
 
-### Route Protection (auth.config.ts)
-- Public routes: `/`, `/login`, `/signup`, `/track-complaint`, `/community-map`, `/api/auth/*`
-- Protected: everything else requires session
-- Officer-only: `/dashboard/officer/*` — role check inside the page/layout
+### Route Protection & Split Config
+- **`auth.config.ts`**: Edge-safe configuration containing general configuration, routes mapping, and callbacks (JWT, Session, Authorized). Contains no Prisma or bcrypt dependencies.
+- **`auth.ts`**: Node.js-only NextAuth instance wrapper. Spreads `authConfig` and hooks up `PrismaAdapter(prisma)` and `Credentials` provider. Server components and API endpoints import from `@/auth`.
+- **`middleware.ts`**: Wraps the `authConfig` with NextAuth middleware. Enforces route access rules on `/dashboard`, `/citizen`, `/officer`, `/admin`, and `/super-admin`. Supports quick-access bypasses via `demo_role` cookie check.
 
 ### Critical Pattern
 ```ts
@@ -185,7 +185,9 @@ The `as any` cast is needed because NextAuth's default types don't include custo
 
 ### What Breaks If Modified
 - Changing `strategy: "jwt"` to `"database"` breaks all server actions (they call `auth()` which returns null without DB sessions configured)
+- Importing from `@/auth` directly inside `middleware.ts` will bundle Prisma Client, crashing Next.js middleware with Edge runtime errors.
 - Removing `department` from JWT means Officer dashboard loses department filtering
+
 
 ---
 
@@ -410,7 +412,7 @@ CLOUDINARY_API_SECRET=""
 ## 14. DEPLOYMENT
 
 ```bash
-# 1. Set env vars on Vercel (or .env.production)
+# 1. Set env vars on Vercel / Cloud Run (or .env.production)
 # 2. Push DB schema
 npx prisma db push
 # 3. Seed badges (one-time)
@@ -418,13 +420,14 @@ npx prisma db seed
 # 4. Build
 npm run build
 # 5. Deploy
-vercel --prod
+vercel --prod  # or Google Cloud Build for Cloud Run deployment
 ```
 
-### Vercel-Specific Notes
-- `export const dynamic = 'force-dynamic'` is set on pages with real-time DB data — prevents stale static builds
-- Map page uses `dynamic()` import — Vercel handles this correctly
-- Prisma needs `DATABASE_URL` at build time for type generation
+### Build & Deployment Notes
+- **ESLint Checks**: ESLint warnings/errors are ignored during the production build step (`eslint: { ignoreDuringBuilds: true }` in `next.config.ts`) to prevent non-blocking style/unused-var issues from breaking Google Cloud Build pipelines.
+- `export const dynamic = 'force-dynamic'` is set on pages with real-time DB data — prevents stale static builds.
+- Map page uses `dynamic()` import — handled correctly by SSR and Next.js.
+- Prisma needs `DATABASE_URL` at build time for type generation.
 
 ---
 
