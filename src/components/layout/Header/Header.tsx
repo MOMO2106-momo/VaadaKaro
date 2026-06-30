@@ -1,24 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './Header.module.css';
-import { auth } from '@/auth';
-import { logoutUser } from '@/lib/actions/auth-actions';
-import { User as UserIcon, LogOut, Search, Menu } from 'lucide-react';
-import NotificationCenter from '@/components/features/notifications/NotificationCenter';
+import { Search, Menu } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import HeaderUserSection from './HeaderUserSection';
 
 export const dynamic = 'force-dynamic';
 
-export const Header = async () => {
-  let session = null;
-
-  try {
-    session = await auth();
-  } catch (error) {
-    console.error('Auth context unavailable during pre-render:', error);
-  }
-
-  const user = session?.user;
+export const Header = () => {
 
   return (
     <header className={styles.header}>
@@ -53,28 +42,7 @@ export const Header = async () => {
 
             <ThemeToggle />
 
-            {!user ? (
-              <div className={styles.actions}>
-                <Link href="/login" className={styles.loginLink}>Sign In</Link>
-                <Link href="/signup" className={styles.signupBtn}>Request Account</Link>
-              </div>
-            ) : (
-              <div className={styles.userProfile}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                  <span className={styles.userName}>{user.name || user.email}</span>
-                  <span className={styles.userRole}>{(user as any).role || 'Citizen'}</span>
-                </div>
-                <Link href="/dashboard" className={styles.avatar}>
-                  <UserIcon size={20} />
-                </Link>
-                <NotificationCenter />
-                <form action={logoutUser}>
-                  <button type="submit" className={styles.logoutBtn} title="Log Out">
-                    <LogOut size={20} />
-                  </button>
-                </form>
-              </div>
-            )}
+            <HeaderUserSection />
 
             <button type="button" className={styles.mobileMenuBtn} aria-label="Open Mobile Menu">
               <Menu size={24} />

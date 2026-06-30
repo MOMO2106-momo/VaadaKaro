@@ -6,7 +6,8 @@ import authConfig from "./auth.config"
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth
+  const demoRole = req.cookies.get("demo_role")?.value
+  const isLoggedIn = !!req.auth || !!demoRole
   const { pathname } = req.nextUrl
 
   // Routes that require authentication

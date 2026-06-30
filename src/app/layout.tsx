@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import MainLayout from "@/components/layout/MainLayout";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import AuthProvider from "@/components/providers/AuthProvider";
 import { Header } from "@/components/layout/Header";
 import "../styles/globals.css";
 
@@ -27,9 +28,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <MainLayout header={<Header />}>
-            {children}
-          </MainLayout>
+          <AuthProvider>
+            <MainLayout header={<Header />}>
+              {children}
+            </MainLayout>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
