@@ -2,13 +2,45 @@
 
 import Link from "next/link";
 import { Mail, Lock, ShieldCheck, AlertCircle, ArrowRight, Command } from "lucide-react";
-import { useActionState } from "react";
-import { loginUser } from "@/lib/actions/auth-actions";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function LoginPage() {
-  const [state, action, isPending] = useActionState(loginUser, undefined);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPending(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      setIsPending(false);
+
+      if (result?.ok) {
+        router.push("/dashboard");
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch (err) {
+      setIsPending(false);
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#020817] flex items-center justify-center p-6 lg:p-12">
@@ -32,11 +64,11 @@ export default function LoginPage() {
         </div>
 
         {/* Form Section */}
-        <form action={action} className="flex flex-col" style={{ gap: '1.75rem' }}>
-          {state?.error && (
+        <form onSubmit={handleSubmit} className="flex flex-col" style={{ gap: '1.75rem' }}>
+          {error && (
             <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-[14px] font-bold flex items-start gap-3 shadow-sm">
               <AlertCircle size={18} className="shrink-0 mt-0.5" />
-              <span className="leading-snug">{state.error}</span>
+              <span className="leading-snug">{error}</span>
             </div>
           )}
 

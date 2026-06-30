@@ -1,9 +1,23 @@
-import NextAuth from "next-auth";
-import { authConfig } from "./auth.config";
+import { auth } from "@/auth"
+import { NextResponse } from "next/server"
 
-export default NextAuth(authConfig).auth;
+export default auth((req) => {
+  const isLoggedIn = !!req.auth
+  const pathname = req.nextUrl.pathname
+  const isDashboard = pathname.startsWith("/dashboard")
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register")
+
+  if (isDashboard && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.url))
+  }
+
+  if (isAuthPage && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", req.url))
+  }
+
+  return NextResponse.next()
+})
 
 export const config = {
-  // Exclude all common static assets from middleware processing
-  matcher: ['/((?!api|_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|bmp|tiff|woff|woff2|ttf|eot)$).*)'],
-};
+  matcher: ["/dashboard/:path*", "/login", "/register"],
+}
