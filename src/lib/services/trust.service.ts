@@ -26,7 +26,7 @@ export class TrustScoreService {
 
       const newScore = user.trustScore + weight;
       
-      const updateData: any = { trustScore: newScore };
+      const updateData: { trustScore: number; verificationStatus?: string } = { trustScore: newScore };
 
       // Optional safe flag: if score dips below negative 50, put under review blindly
       if (newScore < -50) {
@@ -39,8 +39,9 @@ export class TrustScoreService {
       });
 
       return { success: true, newScore };
-    } catch (e: any) {
-      console.error("[TRUST_ENGINE_UPDATE_ERROR]:", e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error("[TRUST_ENGINE_UPDATE_ERROR]:", message);
     }
   }
 

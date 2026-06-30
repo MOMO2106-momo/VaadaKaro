@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ComplaintStatus, PriorityLevel } from '@prisma/client';
+import { PriorityLevel } from '@prisma/client';
 
 export const complaintSchema = z.object({
   title: z.string()
