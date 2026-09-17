@@ -6,20 +6,16 @@ import { UserRole } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 /**
- * RBAC Helper: Ensures only ADMIN can access these actions
+ * RBAC Helper: Ensures only ADMIN can access these actions.
+ *
+ * SECURITY: this file mutates real user accounts (role/department changes),
+ * so it deliberately does NOT honor the `demo_role` cookie the way read-only
+ * dashboards do. A demo identity must never be able to promote a real user
+ * to ADMIN. Only a genuine authenticated session counts here.
  */
 async function ensureAdmin() {
   const session = await auth();
-  let role = session?.user?.role;
-  
-  if (!session?.user) {
-    const { cookies } = await import('next/headers');
-    const cookieStore = await cookies();
-    const demoRole = cookieStore.get('demo_role')?.value;
-    if (demoRole === 'ADMIN' || demoRole === 'DEPARTMENT_ADMIN' || demoRole === 'SUPER_ADMIN') {
-      role = demoRole;
-    }
-  }
+  const role = session?.user?.role;
 
   if (role !== 'ADMIN' && role !== 'DEPARTMENT_ADMIN' && role !== 'SUPER_ADMIN') {
     throw new Error('Unauthorized: Admin access required');

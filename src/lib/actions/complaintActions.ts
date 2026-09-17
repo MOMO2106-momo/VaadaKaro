@@ -18,8 +18,12 @@ export async function submitComplaint(data: any) {
     if (!session?.user?.id) throw new Error("Unauthorized");
     const userId = session.user.id as string;
 
-    // 0. DIAGNOSTIC LOGGING
-    console.log("Incoming Complaint Data:", JSON.stringify(data, null, 2));
+    // 0. DIAGNOSTIC LOGGING (dev only — this payload includes the citizen's
+    // address/pincode and full grievance text; logging it unconditionally
+    // wrote PII to server logs on every submission, including in production)
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Incoming Complaint Data:", JSON.stringify(data, null, 2));
+    }
 
     // 1. SERVER-SIDE VALIDATION
     const validatedData = complaintSchema.safeParse(data);
@@ -227,11 +231,30 @@ export async function verifyComplaint(complaintId: string, isHelpful: boolean) {
     const userObj = await prisma.user.findUnique({ where: { id: userId }});
     if (!userObj) return { success: false, error: 'User invalid' };
 
+    const complaintObj = await prisma.complaint.findUnique({
+      where: { id: complaintId },
+      select: { citizenId: true },
+    });
+    if (!complaintObj) return { success: false, error: 'Complaint not found' };
+    if (complaintObj.citizenId === userId) {
+      return { success: false, error: 'You cannot verify your own complaint' };
+    }
+
     const canVote = await AntiSpamService.checkVoteRateLimit(userId);
     if (!canVote) return { success: false, error: 'Voting rate limit exceeded. Please wait a minute.' };
 
     const weight = TrustScoreService.getVoteWeight(userObj.trustScore);
     const voteValue = isHelpful ? (1 * weight) : (-1 * weight);
+
+    // Re-voting must adjust verifiedScore by the DELTA against the previous
+    // vote, not add the new value on top — otherwise re-casting the same
+    // vote (e.g. a double click, or changing weight as trust score changes)
+    // kept inflating the cached score indefinitely.
+    const existingVote = await prisma.vote.findUnique({
+      where: { userId_complaintId: { userId, complaintId } },
+      select: { value: true },
+    });
+    const scoreDelta = voteValue - (existingVote?.value ?? 0);
 
     await prisma.vote.upsert({
       where: { userId_complaintId: { userId, complaintId } },
@@ -243,11 +266,12 @@ export async function verifyComplaint(complaintId: string, isHelpful: boolean) {
       await TrustScoreService.updateScore(userId, "REPORT_VERIFIED");
     }
 
-    // Update verifiedScore cache
-    await prisma.complaint.update({
-      where: { id: complaintId },
-      data: { verifiedScore: { increment: voteValue } }
-    });
+    if (scoreDelta !== 0) {
+      await prisma.complaint.update({
+        where: { id: complaintId },
+        data: { verifiedScore: { increment: scoreDelta } }
+      });
+    }
 
     return { success: true, newWeight: weight };
   } catch (err: any) {
@@ -261,16 +285,23 @@ export async function flagFalseReport(complaintId: string) {
     if (!session?.user) return { success: false, error: 'Unauthorized' };
     const userId = session.user.id;
 
-    // A flag increments count flagCount
+    const complaintObj = await prisma.complaint.findUnique({ where: { id: complaintId } });
+    if (!complaintObj) return { success: false, error: 'Complaint not found' };
+    if (complaintObj.citizenId === userId) {
+      return { success: false, error: 'You cannot flag your own complaint' };
+    }
+
+    // KNOWN GAP: there is no per-user record of who has flagged a complaint
+    // (would need a new table — schema.prisma has nothing like FlagRecord),
+    // so this cannot yet stop the same user from flagging the same
+    // complaint repeatedly to keep tanking its owner's trust score. The
+    // self-flag guard above is the only dedup possible without a migration.
     await prisma.complaint.update({
       where: { id: complaintId },
       data: { flagCount: { increment: 1 } }
     });
 
-    const complaintObj = await prisma.complaint.findUnique({ where: { id: complaintId } });
-    if (complaintObj) {
-        await TrustScoreService.updateScore(complaintObj.citizenId, "REPORT_FLAGGED_FALSE");
-    }
+    await TrustScoreService.updateScore(complaintObj.citizenId, "REPORT_FLAGGED_FALSE");
 
     return { success: true };
   } catch(e) {

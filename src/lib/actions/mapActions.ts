@@ -39,7 +39,23 @@ export async function getMapComplaints() {
         where: {
           AND: [{ latitude: { not: null } }, { longitude: { not: null } }],
         },
-        include: {
+        // SECURITY: explicit select, not `include` — this feeds the PUBLIC
+        // community map. `include` on scalars returns every column, which
+        // was leaking internalNotes (officer-private remarks), citizenId,
+        // assignedOfficerId, pincode and clusterId to anonymous visitors.
+        select: {
+          id: true,
+          trackingId: true,
+          title: true,
+          description: true,
+          category: true,
+          status: true,
+          priority: true,
+          location: true,
+          latitude: true,
+          longitude: true,
+          createdAt: true,
+          verifiedScore: true,
           _count: { select: { votes: true, comments: true } },
         },
         orderBy: { createdAt: "desc" },

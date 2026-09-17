@@ -6,23 +6,32 @@ import { revalidatePath } from 'next/cache';
 import { ComplaintStatus, PriorityLevel } from '@prisma/client';
 import { createNotification } from './notificationActions';
 import { requireRole } from '@/lib/permissions';
+import { isDemoModeEnabled } from '@/lib/demo-mode';
 
 /**
- * RBAC Helper: Ensures only OFFICER or above can access actions
+ * RBAC Helper: Ensures only OFFICER or above can access actions.
+ *
+ * The `demo_role` cookie (opt-in via ENABLE_DEMO_MODE) is only honored for
+ * viewing dashboards — it returns `isDemo: true` so mutating actions below
+ * (updateComplaintStatus, assignOfficer) can refuse to run under it. A demo
+ * identity must never be able to change a real complaint's status.
  */
 async function ensureOfficer() {
   const session = await auth();
   if (!session?.user) {
-    const { cookies } = await import('next/headers');
-    const cookieStore = await cookies();
-    const demoRole = cookieStore.get('demo_role')?.value;
-    if (demoRole === 'OFFICER' || demoRole === 'ADMIN' || demoRole === 'DEPARTMENT_ADMIN' || demoRole === 'SUPER_ADMIN') {
-      return {
-        session: { user: { name: 'Inspector Rajesh Kumar', email: 'officer@vaadakaro.gov.in', role: demoRole } },
-        role: demoRole,
-        userDepartment: 'Public Works',
-        userId: 'demo-officer-id'
-      };
+    if (isDemoModeEnabled()) {
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const demoRole = cookieStore.get('demo_role')?.value;
+      if (demoRole === 'OFFICER' || demoRole === 'ADMIN' || demoRole === 'DEPARTMENT_ADMIN' || demoRole === 'SUPER_ADMIN') {
+        return {
+          session: { user: { name: 'Inspector Rajesh Kumar', email: 'officer@vaadakaro.gov.in', role: demoRole } },
+          role: demoRole,
+          userDepartment: 'Public Works',
+          userId: 'demo-officer-id',
+          isDemo: true,
+        };
+      }
     }
     throw new Error('Unauthorized');
   }
@@ -32,8 +41,8 @@ async function ensureOfficer() {
   const userId = session.user.id;
 
   requireRole(role, 'OFFICER');
-  
-  return { session, role, userDepartment, userId };
+
+  return { session, role, userDepartment, userId, isDemo: false };
 }
 
 export async function getOfficerStats() {
@@ -201,7 +210,8 @@ export async function updateComplaintStatus(params: {
   internalNotes?: string;
 }) {
   try {
-    const { session, role, userDepartment } = await ensureOfficer();
+    const { session, role, userDepartment, isDemo } = await ensureOfficer();
+    if (isDemo) throw new Error('Demo accounts cannot modify real complaints. Please sign in.');
     const { complaintId, status, remarks, internalNotes } = params;
 
     // SECURITY: Fetch complaint first to check department
@@ -254,8 +264,9 @@ export async function updateComplaintStatus(params: {
 
 export async function assignOfficer(complaintId: string, officerId: string) {
   try {
-    const { session, role, userDepartment } = await ensureOfficer();
-    
+    const { session, role, userDepartment, isDemo } = await ensureOfficer();
+    if (isDemo) throw new Error('Demo accounts cannot modify real complaints. Please sign in.');
+
     // SECURITY: Verify department access
     const complaintCheck = await prisma.complaint.findUnique({
       where: { id: complaintId },

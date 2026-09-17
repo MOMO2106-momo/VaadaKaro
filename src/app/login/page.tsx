@@ -115,30 +115,32 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Quick Portal Access */}
-        <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgb(30 41 59)' }}>
-          <p className="text-[11px] text-slate-500 text-center font-bold uppercase tracking-widest mb-4">Quick Portal Access</p>
-          <div className="flex justify-center gap-3">
-            {[
-              { role: 'OFFICER', label: 'Officer', emoji: '🛡️', border: 'hover:border-emerald-500/50 hover:bg-emerald-500/5', text: 'group-hover:text-emerald-400', path: '/officer/dashboard' },
-              { role: 'ADMIN', label: 'Admin', emoji: '⚙️', border: 'hover:border-orange-500/50 hover:bg-orange-500/5', text: 'group-hover:text-orange-400', path: '/admin/dashboard' },
-              { role: 'SUPER_ADMIN', label: 'Super', emoji: '👑', border: 'hover:border-purple-500/50 hover:bg-purple-500/5', text: 'group-hover:text-purple-400', path: '/super-admin/dashboard' },
-            ].map(item => (
-              <button
-                key={item.role}
-                type="button"
-                onClick={() => {
-                  document.cookie = `demo_role=${item.role}; path=/; max-age=3600; SameSite=Lax`;
-                  window.location.href = item.path;
-                }}
-                className={`w-16 h-16 rounded-full border border-slate-800 ${item.border} flex flex-col items-center justify-center transition-all duration-200 hover:scale-110 shadow-md group`}
-              >
-                <span className="text-lg leading-none">{item.emoji}</span>
-                <span className={`text-[9px] font-bold text-slate-500 ${item.text} uppercase tracking-wider mt-1`}>{item.label}</span>
-              </button>
-            ))}
+        {/* Quick Portal Access — demo-only, dead unless ENABLE_DEMO_MODE is set server-side too */}
+        {process.env.NEXT_PUBLIC_ENABLE_DEMO_MODE === 'true' && (
+          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgb(30 41 59)' }}>
+            <p className="text-[11px] text-slate-500 text-center font-bold uppercase tracking-widest mb-4">Quick Portal Access (Demo)</p>
+            <div className="flex justify-center gap-3">
+              {[
+                { role: 'OFFICER', label: 'Officer', emoji: '🛡️', border: 'hover:border-emerald-500/50 hover:bg-emerald-500/5', text: 'group-hover:text-emerald-400', path: '/officer/dashboard' },
+                { role: 'ADMIN', label: 'Admin', emoji: '⚙️', border: 'hover:border-orange-500/50 hover:bg-orange-500/5', text: 'group-hover:text-orange-400', path: '/admin/dashboard' },
+                { role: 'SUPER_ADMIN', label: 'Super', emoji: '👑', border: 'hover:border-purple-500/50 hover:bg-purple-500/5', text: 'group-hover:text-purple-400', path: '/super-admin/dashboard' },
+              ].map(item => (
+                <button
+                  key={item.role}
+                  type="button"
+                  onClick={() => {
+                    document.cookie = `demo_role=${item.role}; path=/; max-age=3600; SameSite=Lax`;
+                    window.location.href = item.path;
+                  }}
+                  className={`w-16 h-16 rounded-full border border-slate-800 ${item.border} flex flex-col items-center justify-center transition-all duration-200 hover:scale-110 shadow-md group`}
+                >
+                  <span className="text-lg leading-none">{item.emoji}</span>
+                  <span className={`text-[9px] font-bold text-slate-500 ${item.text} uppercase tracking-wider mt-1`}>{item.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Footer Section */}
         <div className="flex flex-col items-center" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgb(30 41 59)', gap: '1.25rem' }}>

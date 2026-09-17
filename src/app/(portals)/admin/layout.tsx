@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/portals/AdminSidebar';
 import styles from '@/components/portals/portal.module.css';
+import { isDemoModeEnabled } from '@/lib/demo-mode';
 
 export default async function AdminLayout({
   children,
@@ -16,7 +17,7 @@ export default async function AdminLayout({
   if (!user) {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    const demoRole = cookieStore.get('demo_role')?.value;
+    const demoRole = isDemoModeEnabled() ? cookieStore.get('demo_role')?.value : undefined;
     if (demoRole === 'ADMIN' || demoRole === 'DEPARTMENT_ADMIN' || demoRole === 'SUPER_ADMIN') {
       user = {
         name: 'Demo Admin Officer',

@@ -2,11 +2,12 @@
 // Importing from @/auth would pull in PrismaAdapter which crashes on Edge runtime.
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
+import { isDemoModeEnabled } from "./lib/demo-mode"
 
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
-  const demoRole = req.cookies.get("demo_role")?.value
+  const demoRole = isDemoModeEnabled() ? req.cookies.get("demo_role")?.value : undefined
   const isLoggedIn = !!req.auth || !!demoRole
   const { pathname } = req.nextUrl
 

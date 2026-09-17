@@ -1,7 +1,8 @@
 # 🧠 BRAIN.md — VaadaKaro Single Source of Truth
 
 > For any AI agent or developer: read this before touching anything.
-> Last updated: June 2026
+> Last updated: 2026-09-17 (security & correctness audit pass — see §12
+> for what changed and what's still open; §16's risk levels still apply).
 
 ---
 
@@ -19,16 +20,21 @@ Citizens file grievances (potholes, water leakage, broken lights), track resolut
 
 | Layer | Technology | Why |
 |---|---|---|
-| Framework | Next.js 15 (App Router) | SSR + RSC for SEO and performance |
+| Framework | Next.js 15.5.x (App Router) | SSR + RSC for SEO and performance |
 | Language | TypeScript 5 | Type safety across DB ↔ UI |
-| Database | PostgreSQL + Prisma ORM 6.2 | Relational civic data with migrations |
-| Auth | NextAuth v5 (JWT + Credentials) | Role-based, no raw session storage |
-| AI | Google Gemini (`gemini-2.0-flash`) | Complaint analysis + legal chat |
+| Database | PostgreSQL (Neon) + Prisma ORM 6.2 | Relational civic data with migrations |
+| Auth | NextAuth v5 beta (JWT + Credentials) | Role-based, no raw session storage |
+| AI | Google Gemini (`gemini-2.0-flash`, per-workload API keys) | Complaint analysis + legal chat + doc generation |
 | Maps | Leaflet + Esri satellite tiles | Free, no API key for satellite view |
 | Storage | Cloudinary | Complaint photo evidence |
-| Email | Nodemailer | Notifications (not yet fully wired) |
-| Styling | Vanilla CSS Modules | Zero runtime overhead, scoped styles |
-| Deployment | Vercel / Node.js | SSR-compatible |
+| Email | Nodemailer | Wired — fires on complaint submission + officer status updates |
+| Styling | **Tailwind CSS v4** + CSS Modules (mixed) | Tailwind used in most newer pages/components; CSS Modules in older ones. Not "vanilla CSS only" — see §18. |
+| Deployment | Docker (standalone output) → Cloud Run / Vercel | SSR-compatible |
+
+> ⚠️ This table was previously wrong about styling (said "no Tailwind") and
+> email (said "not wired"). If you're an agent reading this before making a
+> change, verify anything load-bearing against the actual code — this file
+> has drifted from reality before and likely will again.
 
 ---
 
@@ -101,7 +107,11 @@ User
 ├── id (cuid)
 ├── email (unique)
 ├── password (bcrypt hash)
-├── role: CITIZEN | OFFICER | LAWYER | ADMIN
+├── role: CITIZEN | OFFICER | LAWYER | ADMIN | DEPARTMENT_ADMIN | SUPER_ADMIN
+│     (DEPARTMENT_ADMIN/SUPER_ADMIN added 2026-09-17 via migration
+│      20260917120000_add_super_admin_department_admin_roles, applied
+│      to the live DB the same day. Portal code had assumed these
+│      existed since the /admin, /super-admin UIs were built.)
 ├── points (gamification XP)
 ├── isVerified (boolean)
 ├── department (for OFFICER role)
@@ -152,13 +162,19 @@ Notification
 ├── userId, type, title, message, isRead, actionUrl, complaintId
 ```
 
-### Enums
+### Enums (verified against prisma/schema.prisma 2026-09-17)
 ```
-UserRole:       CITIZEN | OFFICER | LAWYER | ADMIN
+UserRole:        CITIZEN | OFFICER | LAWYER | ADMIN | DEPARTMENT_ADMIN | SUPER_ADMIN
 ComplaintStatus: SUBMITTED | UNDER_REVIEW | IN_PROGRESS | INFO_REQUESTED | RESOLVED | REJECTED
-PriorityLevel:  LOW | MEDIUM | HIGH | URGENT
-VoteType:       UPVOTE | DOWNVOTE
+PriorityLevel:   LOW | MEDIUM | HIGH | URGENT
+BookingStatus:   PENDING | CONFIRMED | COMPLETED | CANCELLED
 ```
+There is no `VoteType` enum and no `ComplaintVote`/`ComplaintComment`/
+`PointTransaction` models — those were in an earlier draft of this doc and
+never matched the schema. Voting is `model Vote { value Int }` (positive =
+upvote, negative = downvote, magnitude = trust-weighted), generic `Comment`
+is used for complaints, and there is no points ledger table — `User.points`
+is just incremented directly by `GamificationService.awardPoints()`.
 
 ---
 
@@ -169,12 +185,34 @@ VoteType:       UPVOTE | DOWNVOTE
 2. NextAuth creates a **JWT** (not database session — `strategy: "jwt"`)
 3. JWT contains: `id`, `name`, `email`, `image`, `role`, `department`
 4. `auth()` is called server-side in every action/page to get session
-5. `middleware.ts` imports from `./auth.config` (Edge-safe configuration) to enforce auth at the Edge without loading Prisma (which crashes in Edge runtimes). It evaluates `isLoggedIn` using both `req.auth` and the `demo_role` cookie for quick test-bypasses.
+5. `middleware.ts` imports from `./auth.config` (Edge-safe configuration) to enforce auth at the Edge without loading Prisma (which crashes in Edge runtimes). It evaluates `isLoggedIn` using both `req.auth` and, only when demo mode is enabled (see below), the `demo_role` cookie.
 
 ### Route Protection & Split Config
 - **`auth.config.ts`**: Edge-safe configuration containing general configuration, routes mapping, and callbacks (JWT, Session, Authorized). Contains no Prisma or bcrypt dependencies.
 - **`auth.ts`**: Node.js-only NextAuth instance wrapper. Spreads `authConfig` and hooks up `PrismaAdapter(prisma)` and `Credentials` provider. Server components and API endpoints import from `@/auth`.
-- **`middleware.ts`**: Wraps the `authConfig` with NextAuth middleware. Enforces route access rules on `/dashboard`, `/citizen`, `/officer`, `/admin`, and `/super-admin`. Supports quick-access bypasses via `demo_role` cookie check.
+- **`middleware.ts`**: Wraps the `authConfig` with NextAuth middleware. Enforces route access rules on `/dashboard`, `/citizen`, `/officer`, `/admin`, and `/super-admin`.
+
+### Demo Mode (`demo_role` cookie) — 🔴 read this before touching it
+The login page's "Quick Portal Access" buttons set a `demo_role` cookie to
+preview a role's dashboard without a real login. **Until 2026-09-17 this was
+honored unconditionally in production**, at the middleware, `auth.config`,
+portal-layout, AND server-action level — including actions that write to
+real rows (`adminActions.updateUserRole` could promote any real account,
+`officerActions.updateComplaintStatus` could alter any real complaint). That
+was a full unauthenticated privilege-escalation path.
+
+It is now gated behind `src/lib/demo-mode.ts`'s `isDemoModeEnabled()`, which
+checks `process.env.ENABLE_DEMO_MODE === "true"` — **off by default**. The
+client-side buttons are separately gated by `NEXT_PUBLIC_ENABLE_DEMO_MODE`.
+Even with the flag on, `adminActions.ts` no longer accepts a demo identity
+at all (real writes always require a genuine session), and
+`officerActions.ts`'s mutating functions (`updateComplaintStatus`,
+`assignOfficer`) explicitly reject a demo identity via the `isDemo` flag
+`ensureOfficer()` now returns. Only read-only dashboard previews should ever
+honor `demo_role` — if you add a new admin/officer action, do NOT copy the
+old unconditional-demo-bypass pattern from git history.
+
+Never set `ENABLE_DEMO_MODE=true` in an environment with real user data.
 
 ### Critical Pattern
 ```ts
@@ -365,35 +403,70 @@ Email via Nodemailer is configured but **not fully wired** — notifications are
 
 ```env
 DATABASE_URL="postgresql://user:pass@host:5432/vaadakaro"
-NEXTAUTH_SECRET="<random 32+ char string>"
-NEXTAUTH_URL="http://localhost:3000"  # Change to production URL on deploy
-GEMINI_API_KEY="<Google AI Studio key — starts with AQ.>"
+DIRECT_URL="postgresql://user:pass@host:5432/vaadakaro"   # required by schema.prisma's directUrl — missing this breaks migrations against pooled connections (e.g. Neon)
+AUTH_SECRET="<random 32+ char string>"                     # REQUIRED in prod — app now throws at boot if unset (see §5 / §13)
+NEXTAUTH_URL="http://localhost:3000"                       # Change to production URL on deploy
+AUTH_URL="http://localhost:3000"
+AUTH_TRUST_HOST="1"
+GEMINI_API_KEY_CHAT="<Google AI Studio key>"
+GEMINI_API_KEY_ANALYSIS="<Google AI Studio key>"
+GEMINI_API_KEY_DOCUMENTS="<Google AI Studio key>"
+# GEMINI_API_KEY="<legacy single-key fallback, used only if the three above are unset>"
 ```
 
-Optional (for Cloudinary uploads):
+Optional:
 ```env
 CLOUDINARY_CLOUD_NAME=""
 CLOUDINARY_API_KEY=""
 CLOUDINARY_API_SECRET=""
+SMTP_HOST="" SMTP_PORT="587" SMTP_USER="" SMTP_PASS=""
+GOVT_EMAIL_GENERAL=""   # + GOVT_EMAIL_<DEPARTMENT> per department, used by emailActions.sendComplaintToGovernment
+
+# Demo mode (hackathon/judging preview only) — see §5. Leave unset in any
+# deployment with real users; both default to false/off.
+ENABLE_DEMO_MODE="true"
+NEXT_PUBLIC_ENABLE_DEMO_MODE="true"
 ```
 
 ### Common Mistakes
 - `NEXTAUTH_URL` must match the exact domain in production (no trailing slash)
-- `GEMINI_API_KEY` starting with `AQ.` is valid — it's the new AI Studio format
-- Missing `GEMINI_API_KEY` → genAI initializes with empty string → all AI calls return 403
+- `AUTH_SECRET` missing in production now fails the build/boot on purpose (was previously a hardcoded fallback — a real security hole, fixed 2026-09-17)
+- Missing all three `GEMINI_API_KEY_*` (and no legacy `GEMINI_API_KEY`) → that workload's AI calls return a "not configured" error, not a crash
+- `DIRECT_URL` must be set for Prisma Migrate to work against a pooled connection (Neon, PgBouncer, etc.) even though the app itself only needs `DATABASE_URL`
 
 ---
 
 ## 12. KNOWN BUGS & TECHNICAL DEBT
 
-| Bug | Location | Impact | Fix |
-|---|---|---|---|
-| History starts with 'model' role | `legal-assistant.ts` line 123 | Chat crashes on first message if bot welcome message is in history | Filter leading model messages: `.filter((_, i, arr) => !(i === 0 && arr[0].role === 'model'))` |
-| `as any` session casts everywhere | All server actions | No TypeScript safety on user fields | Extend NextAuth `Session` type with custom fields |
-| No latitude/longitude on submission | `complaintActions.ts` | Map shows no pins for new complaints | **[RESOLVED]** GPS Auto-Fill and manual pincode reverse geocoding added in Step 2. Coords are passed and stored in DB, updating community map instantly. |
-| Nodemailer not wired | `notificationActions.ts` | Email notifications silent | Implement sendEmail() call after createNotification() |
-| No rate limiting on votes/comments | `communityActions.ts` | Spam votes possible | Add Redis or DB-based rate limit (5 votes/min per user) |
-| Duplicate action file paths | `src/actions/` vs `src/lib/actions/` | Confusion — two folders for actions | Consolidate into `src/lib/actions/` only |
+**Status as of 2026-09-17 security/correctness pass** (branch
+`security/audit-fixes-2026-09`) — the table below in earlier versions of this
+file was significantly out of date; several "known bugs" were already fixed
+and several real, more serious issues weren't listed at all.
+
+| Item | Status | Notes |
+|---|---|---|
+| `demo_role` cookie = unauthenticated role bypass, including on real DB writes | ✅ **FIXED** | Gated behind `ENABLE_DEMO_MODE` (default off); stripped entirely from `adminActions.ts`; `officerActions.ts` mutating actions reject demo identities even when the flag is on. See §5. |
+| Hardcoded fallback JWT secret in `auth.config.ts` | ✅ **FIXED** | Now throws in production if `AUTH_SECRET`/`NEXTAUTH_SECRET` is unset; dev falls back to a random per-process secret with a warning. |
+| `next@15.0.3` — 8 vulnerabilities incl. critical middleware auth-bypass CVE-2025-29927 | ✅ **FIXED** | Upgraded to `15.5.25`. `npm audit` down to 2 low findings nested in Next's own bundled `postcss`, only fixable by a Next 16 major upgrade (deliberately deferred — real migration, not a patch). |
+| `emailActions.ts` had `'use server'` with zero auth — public open mail relay | ✅ **FIXED** | Dropped `'use server'`, added `server-only` guard; these are internal helpers only ever called from other server actions. |
+| `uploadFileToCloudinary()` had no auth check | ✅ **FIXED** | Added `auth()` check (it's called directly from a client component so must stay a Server Action). |
+| `getMapComplaints()` used Prisma `include`, leaking `internalNotes`/`citizenId`/`assignedOfficerId`/`pincode` to the public map | ✅ **FIXED** | Switched to explicit `select` with only the fields the map UI renders. |
+| `demoActions.ts` referenced a nonexistent `platformMetric` model + wrong `AccountabilityPartner` field names | ✅ **FIXED** | `getPlatformMetrics()` now computes real live counts; `setupDemoData()` uses the real schema fields. Also restored a missing `'use server'` that was leaking Prisma into the client bundle (118 kB → 2 kB). |
+| `verifyComplaint()` double-counted `verifiedScore` on re-vote, no self-vote guard | ✅ **FIXED** | Now adjusts by delta vs. previous vote; self-vote blocked. **Still true:** this function has no caller anywhere in the UI — voting is not actually wired up on the community map despite BRAIN.md §9 describing it. That's a missing feature, not a bug. |
+| `flagFalseReport()` no self-flag guard | ✅ **PARTIALLY FIXED** | Self-flag blocked. Per-user one-flag-max still not possible — no table tracks who flagged what (would need a schema addition). Also has no caller anywhere yet. |
+| `AntiSpamService.checkRateLimit()` re-applied -30 trust penalty on every blocked attempt | ✅ **FIXED** | Now only applies once when the cap is first crossed. |
+| `submitComplaint()` logged the full payload (name/address/pincode/description) unconditionally | ✅ **FIXED** | Gated to non-production only. |
+| `React`/`react-dom` pinned to a dated pre-release RC (`19.0.0-rc-66855b96-20241106`) | ✅ **FIXED** | Moved to `^19.0.0` (resolves to stable 19.3.0); `@types/react(-dom)` bumped `^18` → `^19` to match. |
+| `SUPER_ADMIN`/`DEPARTMENT_ADMIN` used throughout code but missing from the `UserRole` enum | ✅ **FIXED** | Added to schema + migration `20260917120000_add_super_admin_department_admin_roles`, applied to the live Neon DB on 2026-09-17. Note: this DB previously had NO migration history at all (built via `db push`) — the 3 pre-existing migration files had to be baselined with `prisma migrate resolve --applied <name>` before this one could deploy. If you add future migrations, `prisma migrate status` should now show a clean history going forward. |
+| History starts with 'model' role crash | ✅ Already fixed before this pass | `legal-assistant.ts`'s `sanitizeChatHistory()` already filters leading model messages — this item in earlier BRAIN.md revisions was stale. |
+| `as any` session casts everywhere | ✅ Already fixed before this pass | `src/types/next-auth.d.ts` already extends `Session`/`JWT`/`User` with `role`/`id`/`department` — this item was stale too. |
+| Nodemailer not wired | ✅ Already fixed before this pass | `emailActions.ts` sends confirmation + government notification emails from `submitComplaint()`, and status-update emails from `officerActions`/`notificationActions`. |
+| No rate limiting on votes/comments | ✅ Already fixed before this pass | `AntiSpamService.checkVoteRateLimit`/`checkCommentRateLimit` (5/min) exist — though note the `/api/community/vote` and `/api/community/comment` routes don't currently call them (only the unused `verifyComplaint` server action does). |
+| Duplicate action file paths (`src/actions/` vs `src/lib/actions/`) | ✅ Already fixed before this pass | Only `src/lib/actions/` exists now. |
+| **NOT YET FIXED:** two parallel route trees (`/dashboard/*` vs `/(portals)/*`) + duplicate sidebar/layout components | 🟡 Open | Real workflows live under `/dashboard/*`; most of `/(portals)/admin`, `/(portals)/super-admin`, and 7 of 8 `/(portals)/officer/*` pages are hardcoded mock UI with no DB calls. Needs a deliberate consolidation pass, not a quick fix. |
+| **NOT YET FIXED:** voting has no UI anywhere | 🟡 Open | Neither `verifyComplaint()` nor `/api/community/vote` is called from any component. Building the actual vote UI on the community map is a real feature task. |
+| **NOT YET FIXED:** `/api/community/vote` and `/api/community/comment` don't call `AntiSpamService`'s rate limiters | 🟡 Open | They award points on every call with no cap. |
+| **NOT YET FIXED:** `zod ^4.4.3` alongside `next@15.5.x`/React 19.3 — no compatibility issues found in build/typecheck, but worth re-verifying after any future zod major bump | 🟡 Note only | |
 
 ---
 
@@ -403,18 +476,24 @@ CLOUDINARY_API_SECRET=""
 - No raw Aadhaar/ID stored (hash only — schema has `idFingerprint` for future use)
 - Role enforcement: server-side only — never trust client-passed role
 - Public complaint view: masks description and location for non-owners
-- File uploads: Cloudinary — files never stored on server
+- Public community map: uses an explicit Prisma `select` (fixed 2026-09-17 — previously leaked `internalNotes`, `citizenId`, etc. via `include`)
+- File uploads: Cloudinary — files never stored on server; `uploadFileToCloudinary` requires auth (fixed 2026-09-17)
+- Internal-only actions (`emailActions.ts`) are not `'use server'` and cannot be called from the client (fixed 2026-09-17 — see §12)
 - Audit log: every complaint creation logged to `AuditLog` table
 - Middleware runs on all routes except static assets and `_next/*`
+- `AUTH_SECRET` has no hardcoded fallback — app refuses to boot in production without it (fixed 2026-09-17)
+- `demo_role` cookie bypass is off by default and cannot reach real DB-mutating actions even when enabled (fixed 2026-09-17 — see §5)
+- `npm audit`: 2 low-severity findings remain, both nested in Next.js's own bundled `postcss`, requiring a Next 16 major upgrade to clear (deliberately deferred, see §12)
 
 ---
 
 ## 14. DEPLOYMENT
 
 ```bash
-# 1. Set env vars on Vercel / Cloud Run (or .env.production)
-# 2. Push DB schema
-npx prisma db push
+# 1. Set env vars on Vercel / Cloud Run (or .env.production) — AUTH_SECRET
+#    is now mandatory in production, the app will not boot without it.
+# 2. Apply pending migrations (includes the 2026-09-17 role enum addition)
+npx prisma migrate deploy
 # 3. Seed badges (one-time)
 npx prisma db seed
 # 4. Build
@@ -423,11 +502,16 @@ npm run build
 vercel --prod  # or Google Cloud Build for Cloud Run deployment
 ```
 
+`npx prisma db push` (schema-sync without migration history) still works for
+a scratch/dev database, but prefer `migrate deploy` for any database that
+already has data — `db push` doesn't apply the migrations directory.
+
 ### Build & Deployment Notes
 - **ESLint Checks**: ESLint warnings/errors are ignored during the production build step (`eslint: { ignoreDuringBuilds: true }` in `next.config.ts`) to prevent non-blocking style/unused-var issues from breaking Google Cloud Build pipelines.
 - `export const dynamic = 'force-dynamic'` is set on pages with real-time DB data — prevents stale static builds.
 - Map page uses `dynamic()` import — handled correctly by SSR and Next.js.
 - Prisma needs `DATABASE_URL` at build time for type generation.
+- `npm install`/`npm ci` need `--legacy-peer-deps` (see the Dockerfile) — `next-auth@5.0.0-beta.25` peer-requests `nodemailer@^6.6.5` while the project uses `nodemailer@^9.x`; this is a pre-existing mismatch, not something introduced by the 2026-09-17 dependency bump.
 
 ---
 
@@ -482,7 +566,8 @@ npm run dev
 Remove-Item -Recurse -Force .next && npm run dev
 
 # DB
-npx prisma db push          # sync schema to DB
+npx prisma migrate deploy   # apply pending migrations (use this, not db push, once the DB has real data)
+npx prisma db push          # schema-sync without migration history — fine for a scratch/dev DB only
 npx prisma db seed          # seed badges
 npx prisma studio           # visual DB browser
 

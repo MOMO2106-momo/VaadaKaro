@@ -3,14 +3,28 @@
 // This file is imported by middleware.ts which runs on the Edge runtime.
 // The Credentials provider (which needs Prisma + bcrypt) lives in auth.ts only.
 import type { NextAuthConfig } from "next-auth";
+import { isDemoModeEnabled } from "./lib/demo-mode";
+
+const envSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+
+// SECURITY: a hardcoded fallback secret here would let anyone who has read
+// this source forge a valid session JWT for any role. Fail closed instead.
+if (!envSecret && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "[AUTH_CONFIG] AUTH_SECRET (or NEXTAUTH_SECRET) must be set in production. Refusing to start with no secret."
+  );
+}
+if (!envSecret) {
+  console.warn(
+    "[AUTH_CONFIG] No AUTH_SECRET set — using a random secret for this dev process only. " +
+    "Existing sessions will invalidate on restart. Set AUTH_SECRET in .env to avoid this."
+  );
+}
+// Web Crypto's randomUUID is available in both Node and the Edge runtime.
+const devOnlySecret = envSecret || globalThis.crypto.randomUUID();
 
 export const authConfig = {
-  // Explicitly set the secret so JWT signing/verification always works,
-  // even if AUTH_SECRET env var is absent from the Cloud Run console.
-  secret:
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "5943e95c497943acbd69dda624bf1301deeef1585f5e3408944f791fff34d",
+  secret: devOnlySecret,
 
   // Required for Cloud Run (reverse-proxy / load-balancer in front of container).
   trustHost: true,
@@ -33,8 +47,10 @@ export const authConfig = {
       let role = (auth?.user as any)?.role;
       const pathname = nextUrl.pathname;
 
-      // Demo role bypass logic
-      const demoRoleCookie = request.cookies.get("demo_role")?.value;
+      // Demo role bypass logic — opt-in only, see src/lib/demo-mode.ts
+      const demoRoleCookie = isDemoModeEnabled()
+        ? request.cookies.get("demo_role")?.value
+        : undefined;
       if (!isLoggedIn && demoRoleCookie) {
         isLoggedIn = true;
         role = demoRoleCookie;
