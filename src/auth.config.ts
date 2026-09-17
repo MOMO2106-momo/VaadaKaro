@@ -7,14 +7,26 @@ import { isDemoModeEnabled } from "./lib/demo-mode";
 
 const envSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
+// `next build` always runs with NODE_ENV=production (Next sets this itself
+// during the build phase) and evaluates this module while statically
+// analyzing routes — with no real request being served and, typically, no
+// runtime secrets injected into the build environment (this repo's own
+// Dockerfile excludes .env from the build context and never sets
+// AUTH_SECRET as an ARG/ENV for the builder stage). Throwing unconditionally
+// on NODE_ENV==="production" therefore crashed `next build` itself in CI/
+// Cloud Build, before a container even existed to receive the real secret
+// at deploy time. NEXT_PHASE distinguishes "being built" from "actually
+// serving traffic" — only enforce the check in the latter.
+const isNextBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+
 // SECURITY: a hardcoded fallback secret here would let anyone who has read
 // this source forge a valid session JWT for any role. Fail closed instead.
-if (!envSecret && process.env.NODE_ENV === "production") {
+if (!envSecret && process.env.NODE_ENV === "production" && !isNextBuildPhase) {
   throw new Error(
     "[AUTH_CONFIG] AUTH_SECRET (or NEXTAUTH_SECRET) must be set in production. Refusing to start with no secret."
   );
 }
-if (!envSecret) {
+if (!envSecret && !isNextBuildPhase) {
   console.warn(
     "[AUTH_CONFIG] No AUTH_SECRET set — using a random secret for this dev process only. " +
     "Existing sessions will invalidate on restart. Set AUTH_SECRET in .env to avoid this."
