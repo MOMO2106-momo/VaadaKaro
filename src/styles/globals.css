@@ -44,6 +44,11 @@
   --alert-error-bg: #FEF2F2;
   --alert-success-bg: #F0FDF4;
   --status-pill-bg: rgba(0, 0, 0, 0.04);
+  /* Frosted-glass panel background, paired with backdrop-filter: blur()
+     (e.g. community-map.module.css .floatingPanel). Was referenced there
+     but never defined anywhere — panel had no background at all, only the
+     blur, so it showed a smeared, illegible view of whatever was behind it. */
+  --surface-bg: rgba(255, 255, 255, 0.85);
 
   /* Semantic Colors */
   --primary: var(--brand-navy);
@@ -123,6 +128,7 @@
   --alert-error-bg: rgba(239, 68, 68, 0.12);
   --alert-success-bg: rgba(34, 197, 94, 0.12);
   --status-pill-bg: rgba(255, 255, 255, 0.06);
+  --surface-bg: rgba(15, 23, 42, 0.85);
 
   /* Shadows for dark mode depth */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);

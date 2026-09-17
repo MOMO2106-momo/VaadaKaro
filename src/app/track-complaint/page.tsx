@@ -58,16 +58,16 @@ function TrackComplaintInner() {
         <h1>Grievance Tracking Portal</h1>
         <p>Monitor the real-time status of your official complaints and legal inquiries.</p>
         
-        <div style={{ 
-          background: '#f0f7ff', 
-          border: '1px solid #dbeafe', 
-          borderRadius: 'var(--radius-sm)', 
+        <div style={{
+          background: 'var(--alert-info-bg)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: 'var(--radius-sm)',
           padding: '0.85rem 1.25rem',
           marginTop: '1.5rem',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.75rem',
-          color: '#1e3a8a',
+          color: 'var(--brand-navy)',
           fontSize: '0.85rem',
           fontWeight: 700
         }}>

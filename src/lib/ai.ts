@@ -6,10 +6,22 @@ import {
   type GeminiKeyRole,
 } from "./config";
 
+// Verified against Google's live ListModels response on 2026-09-17:
+// gemini-2.0-flash, gemini-1.5-flash, and gemini-1.5-flash-latest are all
+// hard-retired now (404 "no longer available" / "not found for
+// generateContent") — every AI call in the app was failing through this
+// entire chain and silently landing on the canned fallback text, with no
+// visible error to the user. `gemini-flash-latest` is a rolling alias
+// Google keeps pointed at their current recommended flash model, which
+// should make this specific kind of rot much less likely to recur; the
+// pinned fallbacks below were confirmed to still exist as of the same date
+// (a currently-valid model returns 403 if the API key/project lacks access,
+// vs. 404 for a genuinely retired one — that's how these were told apart
+// from a fully broken key).
 export const AI_MODELS = {
-  PRIMARY: "gemini-2.0-flash",
-  FALLBACK: "gemini-1.5-flash",
-  LEGACY: "gemini-1.5-flash-latest",
+  PRIMARY: "gemini-flash-latest",
+  FALLBACK: "gemini-3.6-flash",
+  LEGACY: "gemini-3.5-flash",
 };
 
 /** Try multiple models — some keys/regions don't support every model */
@@ -64,6 +76,7 @@ interface AiTaskResult<T> {
 function getUserFriendlyError(errorMessage: string) {
   const msg = errorMessage.toLowerCase();
   if (msg.includes("api key not valid") || msg.includes("api_key_invalid")) return "Invalid AI API key configuration.";
+  if (msg.includes("permission_denied") || msg.includes("denied access")) return "AI provider has denied access to this API key's project — check the Google Cloud project's billing/access status, not the model name.";
   if (msg.includes("quota") || msg.includes("429")) return "AI service rate limit exceeded. Please try again later.";
   if (msg.includes("timeout")) return "The AI request timed out. Please try again.";
   if (msg.includes("fetch failed") || msg.includes("network")) return "Network error connecting to AI service.";
