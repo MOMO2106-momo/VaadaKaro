@@ -22,7 +22,13 @@ export class AntiSpamService {
 
     // Cap at 5 reports per 24 hours. A user exceeding this is likely spamming.
     if (recentSubmissions >= 5) {
-      await TrustScoreService.updateScore(userId, "PENALTY_SPAM");
+      // Only apply the trust penalty the first time the cap is crossed —
+      // otherwise every subsequent blocked attempt in the same 24h window
+      // re-applies -30 trust, so a user who keeps retrying gets penalized
+      // over and over for the same violation.
+      if (recentSubmissions === 5) {
+        await TrustScoreService.updateScore(userId, "PENALTY_SPAM");
+      }
       return false;
     }
 

@@ -19,16 +19,21 @@ Citizens file grievances (potholes, water leakage, broken lights), track resolut
 
 | Layer | Technology | Why |
 |---|---|---|
-| Framework | Next.js 15 (App Router) | SSR + RSC for SEO and performance |
+| Framework | Next.js 15.5.x (App Router) | SSR + RSC for SEO and performance |
 | Language | TypeScript 5 | Type safety across DB ↔ UI |
-| Database | PostgreSQL + Prisma ORM 6.2 | Relational civic data with migrations |
-| Auth | NextAuth v5 (JWT + Credentials) | Role-based, no raw session storage |
-| AI | Google Gemini (`gemini-2.0-flash`) | Complaint analysis + legal chat |
+| Database | PostgreSQL (Neon) + Prisma ORM 6.2 | Relational civic data with migrations |
+| Auth | NextAuth v5 beta (JWT + Credentials) | Role-based, no raw session storage |
+| AI | Google Gemini (`gemini-2.0-flash`, per-workload API keys) | Complaint analysis + legal chat + doc generation |
 | Maps | Leaflet + Esri satellite tiles | Free, no API key for satellite view |
 | Storage | Cloudinary | Complaint photo evidence |
-| Email | Nodemailer | Notifications (not yet fully wired) |
-| Styling | Vanilla CSS Modules | Zero runtime overhead, scoped styles |
-| Deployment | Vercel / Node.js | SSR-compatible |
+| Email | Nodemailer | Wired — fires on complaint submission + officer status updates |
+| Styling | **Tailwind CSS v4** + CSS Modules (mixed) | Tailwind used in most newer pages/components; CSS Modules in older ones. Not "vanilla CSS only" — see §18. |
+| Deployment | Docker (standalone output) → Cloud Run / Vercel | SSR-compatible |
+
+> ⚠️ This table was previously wrong about styling (said "no Tailwind") and
+> email (said "not wired"). If you're an agent reading this before making a
+> change, verify anything load-bearing against the actual code — this file
+> has drifted from reality before and likely will again.
 
 ---
 
