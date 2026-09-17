@@ -48,6 +48,9 @@ export async function getCloudinarySignature() {
  */
 export async function uploadFileToCloudinary(base64Data: string) {
   try {
+    const session = await auth();
+    if (!session?.user) throw new Error('Unauthorized');
+
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       return { success: true, url: null, warning: "Upload skipped: Missing configuration" };
     }

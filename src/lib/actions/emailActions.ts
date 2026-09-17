@@ -1,5 +1,13 @@
-"use server";
-
+// NOTE: intentionally NOT "use server". These functions are internal helpers
+// called only from other server actions (complaintActions.ts,
+// notificationActions.ts) — never directly from a client component. A
+// top-level "use server" directive here would register each exported
+// function as a public, callable Server Action endpoint reachable by anyone
+// with no auth check, e.g. sendNotificationEmail(userId, title, html) could
+// be used to spam arbitrary HTML email from this app's SMTP account to any
+// user in the database. `server-only` makes the opposite mistake (importing
+// this from a client component) a build-time error instead.
+import "server-only";
 import nodemailer from "nodemailer";
 import prisma from "@/lib/prisma";
 
