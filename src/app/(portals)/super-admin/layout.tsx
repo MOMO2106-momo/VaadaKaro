@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { SuperAdminSidebar } from '@/components/portals/SuperAdminSidebar';
 import styles from '@/components/portals/portal.module.css';
+import { isDemoModeEnabled } from '@/lib/demo-mode';
 
 export default async function SuperAdminLayout({
   children,
@@ -16,7 +17,7 @@ export default async function SuperAdminLayout({
   if (!user) {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    const demoRole = cookieStore.get('demo_role')?.value;
+    const demoRole = isDemoModeEnabled() ? cookieStore.get('demo_role')?.value : undefined;
     if (demoRole === 'SUPER_ADMIN') {
       user = {
         name: 'Super Master Admin',

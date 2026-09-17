@@ -3,13 +3,14 @@
 import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { requireRole } from '@/lib/permissions';
+import { isDemoModeEnabled } from '@/lib/demo-mode';
 
 export async function getSystemHealth() {
   try {
     const session = await auth();
     let role = (session?.user as any)?.role;
 
-    if (!session?.user) {
+    if (!session?.user && isDemoModeEnabled()) {
       const { cookies } = await import('next/headers');
       const cookieStore = await cookies();
       const demoRole = cookieStore.get('demo_role')?.value;

@@ -5,6 +5,7 @@ import { Shield, FileText, BrainCircuit, Table, CheckCircle, AlertCircle, Users,
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { isDemoModeEnabled } from "@/lib/demo-mode";
 
 export default async function AdminDashboardPage() {
     const session = await auth();
@@ -13,7 +14,7 @@ export default async function AdminDashboardPage() {
     if (!user) {
         const { cookies } = await import('next/headers');
         const cookieStore = await cookies();
-        const demoRole = cookieStore.get('demo_role')?.value;
+        const demoRole = isDemoModeEnabled() ? cookieStore.get('demo_role')?.value : undefined;
         if (demoRole === 'ADMIN' || demoRole === 'DEPARTMENT_ADMIN' || demoRole === 'SUPER_ADMIN') {
             user = {
                 name: 'Demo Admin Officer',
