@@ -18,8 +18,12 @@ export async function submitComplaint(data: any) {
     if (!session?.user?.id) throw new Error("Unauthorized");
     const userId = session.user.id as string;
 
-    // 0. DIAGNOSTIC LOGGING
-    console.log("Incoming Complaint Data:", JSON.stringify(data, null, 2));
+    // 0. DIAGNOSTIC LOGGING (dev only — this payload includes the citizen's
+    // address/pincode and full grievance text; logging it unconditionally
+    // wrote PII to server logs on every submission, including in production)
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Incoming Complaint Data:", JSON.stringify(data, null, 2));
+    }
 
     // 1. SERVER-SIDE VALIDATION
     const validatedData = complaintSchema.safeParse(data);
