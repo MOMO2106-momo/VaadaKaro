@@ -108,11 +108,10 @@ User
 ├── email (unique)
 ├── password (bcrypt hash)
 ├── role: CITIZEN | OFFICER | LAWYER | ADMIN | DEPARTMENT_ADMIN | SUPER_ADMIN
-│     (DEPARTMENT_ADMIN/SUPER_ADMIN added 2026-09-17 — see migration
-│      20260917120000_add_super_admin_department_admin_roles. Portal
-│      code assumed these existed since the /admin, /super-admin UIs
-│      were built; run `npx prisma migrate deploy` before relying on
-│      them against a real database.)
+│     (DEPARTMENT_ADMIN/SUPER_ADMIN added 2026-09-17 via migration
+│      20260917120000_add_super_admin_department_admin_roles, applied
+│      to the live DB the same day. Portal code had assumed these
+│      existed since the /admin, /super-admin UIs were built.)
 ├── points (gamification XP)
 ├── isVerified (boolean)
 ├── department (for OFFICER role)
@@ -458,7 +457,7 @@ and several real, more serious issues weren't listed at all.
 | `AntiSpamService.checkRateLimit()` re-applied -30 trust penalty on every blocked attempt | ✅ **FIXED** | Now only applies once when the cap is first crossed. |
 | `submitComplaint()` logged the full payload (name/address/pincode/description) unconditionally | ✅ **FIXED** | Gated to non-production only. |
 | `React`/`react-dom` pinned to a dated pre-release RC (`19.0.0-rc-66855b96-20241106`) | ✅ **FIXED** | Moved to `^19.0.0` (resolves to stable 19.3.0); `@types/react(-dom)` bumped `^18` → `^19` to match. |
-| `SUPER_ADMIN`/`DEPARTMENT_ADMIN` used throughout code but missing from the `UserRole` enum | ✅ **FIXED (schema)**, ⏳ **migration not yet applied** | Added to schema + migration `20260917120000_add_super_admin_department_admin_roles`. **Run `npx prisma migrate deploy` against the real database before relying on this** — it was unreachable from the environment this fix was made in, so it has not been applied yet. |
+| `SUPER_ADMIN`/`DEPARTMENT_ADMIN` used throughout code but missing from the `UserRole` enum | ✅ **FIXED** | Added to schema + migration `20260917120000_add_super_admin_department_admin_roles`, applied to the live Neon DB on 2026-09-17. Note: this DB previously had NO migration history at all (built via `db push`) — the 3 pre-existing migration files had to be baselined with `prisma migrate resolve --applied <name>` before this one could deploy. If you add future migrations, `prisma migrate status` should now show a clean history going forward. |
 | History starts with 'model' role crash | ✅ Already fixed before this pass | `legal-assistant.ts`'s `sanitizeChatHistory()` already filters leading model messages — this item in earlier BRAIN.md revisions was stale. |
 | `as any` session casts everywhere | ✅ Already fixed before this pass | `src/types/next-auth.d.ts` already extends `Session`/`JWT`/`User` with `role`/`id`/`department` — this item was stale too. |
 | Nodemailer not wired | ✅ Already fixed before this pass | `emailActions.ts` sends confirmation + government notification emails from `submitComplaint()`, and status-update emails from `officerActions`/`notificationActions`. |
