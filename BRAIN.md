@@ -231,29 +231,55 @@ The `as any` cast is needed because NextAuth's default types don't include custo
 
 ## 6. AI SYSTEM
 
-### Two Parallel AI Paths (IMPORTANT)
+### One shared model chain (BRAIN.md previously said "two parallel paths" — stale)
+`src/lib/actions/legal-assistant.ts` (VaadaAI chat) imports `MODEL_CHAIN`
+straight from `src/lib/ai.ts` — there is only one place model names are
+configured, not two. `src/lib/ai.ts`'s `runAiTask()` is used by
+`ai-actions.ts` and `complaint-analysis.ts`; `legal-assistant.ts` uses the
+same `MODEL_CHAIN` directly with `model.startChat()` for multi-turn
+conversation, since chat needs history threading that `runAiTask()` doesn't
+support.
+- `getGeminiClient(role)` initializes one `GoogleGenerativeAI` instance per
+  key role (CHAT/ANALYSIS/DOCUMENTS), cached in a module-level `Map`.
+- `runAiTask(taskType, prompt, options)` tries each model in `MODEL_CHAIN`
+  in order until one succeeds. Returns `{ data, metadata }` or
+  `{ error, metadata }`. `options.json = true` strips markdown fences and
+  parses JSON.
+- The leading-'model'-role history bug mentioned in older versions of this
+  doc is already fixed — `legal-assistant.ts`'s `sanitizeChatHistory()`
+  filters and normalizes history before it reaches Gemini.
 
-There are **two separate ways** AI is called in this project:
-
-#### Path A — `src/lib/ai.ts` → `runAiTask()`
-Used by: `ai-actions.ts`, `complaint-analysis.ts` (when called via lib)
-- Initializes `GoogleGenerativeAI` once at module load
-- `runAiTask(taskType, prompt, options)` tries PRIMARY model, falls back to FALLBACK
-- Returns `{ data, metadata }` or `{ error, metadata }`
-- `options.json = true` → strips markdown fences and parses JSON
-
-#### Path B — `src/actions/legal-assistant.ts` (direct SDK)
-Used by: VaadaAI chat
-- Creates its own `GoogleGenerativeAI` instance inline
-- Uses `model.startChat()` for multi-turn conversation
-- **Known Bug:** If history array starts with a 'model' role message, Gemini throws "First content should be with role 'user'". Fix: filter out leading model messages from history before passing to `startChat()`
-
-### Model Config
+### Model Config — 🔴 fixed 2026-09-17, verify model names periodically
 ```ts
-PRIMARY: "gemini-2.0-flash"    // Free tier, fast
-FALLBACK: "gemini-1.5-flash-latest"  // Backup
+PRIMARY:  "gemini-flash-latest"  // rolling alias — Google keeps this pointed at their current recommended flash model
+FALLBACK: "gemini-3.6-flash"
+LEGACY:   "gemini-3.5-flash"
 ```
-**Never use `gemini-1.5-flash` or `gemini-1.5-pro`** — deprecated/restricted on free keys.
+As of 2026-09-17, `gemini-2.0-flash`, `gemini-1.5-flash`, and
+`gemini-1.5-flash-latest` (the previous config) are **all fully retired** —
+confirmed via Google's `ListModels` endpoint and direct `generateContent`
+calls, which 404 regardless of API key. Every AI call in the app was
+exhausting the whole chain silently and falling back to the rule-based
+canned responses in `src/lib/ai-fallback.ts`, with no visible indicator to
+the user that they were getting canned text instead of a real answer.
+**Gemini's flash-tier models get deprecated on a roughly 12-18 month
+cadence** — if AI features start silently returning generic/templated
+answers again, check `MODEL_CHAIN` in `src/lib/ai.ts` against Google's
+current `ListModels` response before assuming it's an API key or code
+problem.
+
+### 🔴 Separate, currently-open issue: all 3 Gemini keys return 403
+As of 2026-09-17, `GEMINI_API_KEY_CHAT`, `GEMINI_API_KEY_ANALYSIS`, and
+`GEMINI_API_KEY_DOCUMENTS` all return `403 PERMISSION_DENIED — "Your
+project has been denied access. Please contact support."` on every current
+model name, verified with direct calls to Google's API outside this app.
+This is a **Google Cloud project-level suspension/access issue on the
+account behind these keys** — not a code bug, not a wrong model name, and
+not fixable by editing this repo. Until it's resolved with Google (billing
+status, ToS flag, or a fresh key from a healthy project), every AI feature
+will keep silently degrading to `ai-fallback.ts`'s canned responses. Check
+`/api/ai/health` for a live read on this — it will explain the 403 by name
+now (see next section) instead of reporting a confusing model error.
 
 ### AI Tasks
 | Task | File | Input | Output |
@@ -262,10 +288,16 @@ FALLBACK: "gemini-1.5-flash-latest"  // Backup
 | Complaint analysis | `complaint-analysis.ts` | title + description | JSON: qualityScore, feedback, suggestedCategory, missingDetails |
 | Document generation | `document-generator.ts` | type + context | Full legal document text |
 | Intelligence summary | `ai-actions.ts` | complaint stats | Civic summary paragraph |
-| Health check | `api/ai/health/route.ts` | ping | `{ status: "healthy" }` |
+| Health check | `api/ai/health/route.ts` | ping | `{ status: "healthy" }` or a specific error (invalid key / rate limit / **denied access** / model unavailable) |
 
-### Health Check Fix
-The health endpoint validates `result.data.length > 0` (not `includes("healthy")`). This was fixed because Gemini responses vary and rarely say "healthy" literally.
+### Graceful degradation
+`src/lib/ai-fallback.ts` provides rule-based canned responses
+(`buildComplaintAnalysisFallback`, `buildCivicCopilotFallback`, etc.) used
+whenever every model in `MODEL_CHAIN` fails, tagged internally with
+`fallback: true`. This is a deliberate design choice to keep the app usable
+during a demo even without live AI — but note the UI does not currently
+show the user any "this is a canned response, not live AI" indicator, so a
+judge/user has no way to tell the difference by looking at the chat.
 
 ---
 
@@ -467,6 +499,10 @@ and several real, more serious issues weren't listed at all.
 | **NOT YET FIXED:** voting has no UI anywhere | 🟡 Open | Neither `verifyComplaint()` nor `/api/community/vote` is called from any component. Building the actual vote UI on the community map is a real feature task. |
 | **NOT YET FIXED:** `/api/community/vote` and `/api/community/comment` don't call `AntiSpamService`'s rate limiters | 🟡 Open | They award points on every call with no cap. |
 | **NOT YET FIXED:** `zod ^4.4.3` alongside `next@15.5.x`/React 19.3 — no compatibility issues found in build/typecheck, but worth re-verifying after any future zod major bump | 🟡 Note only | |
+| `AI_MODELS`/`MODEL_CHAIN` in `src/lib/ai.ts` referenced 3 fully-retired Gemini models — every AI call silently fell back to canned text with no visible error | ✅ **FIXED** | Updated to `gemini-flash-latest` + 2 pinned fallbacks (see §6). Found via a live browser DOM/console debug pass, not static review. |
+| **NOT YET FIXED — needs Google, not code:** all 3 `GEMINI_API_KEY_*` return `403 PERMISSION_DENIED` on every current model | 🔴 Open, external | See §6. This is a Google Cloud project access/billing issue on the account behind these keys. Check `/api/ai/health` for current status. |
+| `.floatingPanel`'s `background: var(--surface-bg)` — `--surface-bg` was never defined anywhere, panel had no background, only a blurred smear of the map behind it | ✅ **FIXED** | Added the token to both theme blocks in `globals.css`. Found via live browser DOM debug. |
+| Hardcoded light-mode-only inline colors on the track-complaint status banner | ✅ **FIXED** | Switched to `--alert-info-bg`/`--brand-navy` tokens. |
 
 ---
 
