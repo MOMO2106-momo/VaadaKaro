@@ -1,14 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { User, Mail, Lock, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, Phone, Calendar, MapPin } from "lucide-react";
-import { useActionState } from "react";
+import { User, Mail, Lock, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, Phone, Calendar, MapPin, Loader2 } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { registerUser } from "@/lib/actions/auth-actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function SignupPage() {
   const [state, action, isPending] = useActionState(registerUser, undefined);
+  const router = useRouter();
+  // Tracked only so a successful registration can sign the citizen straight
+  // in — previously they had to click through to /login and retype both
+  // fields right after typing them here.
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [autoSigningIn, setAutoSigningIn] = useState(false);
+  const [autoSignInFailed, setAutoSignInFailed] = useState(false);
+
+  useEffect(() => {
+    if (!state?.success) return;
+
+    let cancelled = false;
+    setAutoSigningIn(true);
+
+    signIn("credentials", { email, password, redirect: false })
+      .then((result) => {
+        if (cancelled) return;
+        if (result?.ok) {
+          router.push("/dashboard");
+        } else {
+          setAutoSigningIn(false);
+          setAutoSignInFailed(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAutoSigningIn(false);
+          setAutoSignInFailed(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state?.success]);
 
   return (
     <div className="min-h-screen bg-[#020817] flex items-center justify-center p-6 lg:p-12">
@@ -43,8 +82,18 @@ export default function SignupPage() {
 
           {state?.success && (
             <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl text-[14px] font-bold flex items-start gap-3 shadow-sm">
-              <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
-              <span className="leading-snug">{state.success}</span>
+              {autoSigningIn ? (
+                <Loader2 size={18} className="shrink-0 mt-0.5 animate-spin" />
+              ) : (
+                <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+              )}
+              <span className="leading-snug">
+                {autoSigningIn
+                  ? "Account created — signing you in..."
+                  : autoSignInFailed
+                  ? "Account created successfully! Please sign in below."
+                  : state.success}
+              </span>
             </div>
           )}
 
@@ -71,6 +120,8 @@ export default function SignupPage() {
                 placeholder="name@domain.gov"
                 required
                 icon={Mail}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -82,6 +133,8 @@ export default function SignupPage() {
               required
               icon={Lock}
               helperText="Minimum 8 characters with mixed case and numbers"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 

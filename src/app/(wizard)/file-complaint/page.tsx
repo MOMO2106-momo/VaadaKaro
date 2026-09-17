@@ -50,6 +50,15 @@ export default function FileComplaintWizardPage() {
     }
   }, [formData]);
 
+  // Advancing/going back a step swapped the whole form panel in place without
+  // resetting scroll — on a long step (or after scrolling to read a field),
+  // the next step rendered with the header, stepper, and top of the new
+  // panel scrolled off-screen, looking cut off/broken until the user
+  // manually scrolled up.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step, submitted]);
+
   const update = (field: keyof WizardFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
