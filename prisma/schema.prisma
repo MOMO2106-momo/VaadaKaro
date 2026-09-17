@@ -16,6 +16,8 @@ enum UserRole {
   OFFICER
   LAWYER
   ADMIN
+  DEPARTMENT_ADMIN
+  SUPER_ADMIN
 }
 
 enum ComplaintStatus {
